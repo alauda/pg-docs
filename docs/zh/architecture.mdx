@@ -2,30 +2,60 @@
 weight: 20
 ---
 
-:::tip
-撰写「功能架构」文档的目的是帮助用户理解功能的核心流程和概念。
-
-在架构中引入的「概念」建议链接到下文「核心概念」对应的章节。如果引入的「概念」较为简单且无需单独文档介绍，则可在架构文档中进行简要说明。
-
-对于复杂的流程，建议在当前目录下单独撰写「深入理解 XXXX」文章，以便深入浅出地进行介绍。
-
-可以访问[架构文档示例](https://product-doc-guide.alauda.cn/template/arch/module_arch_example.html)查看示例文档。
-:::
-
 # 架构
 
-请增加一张或多张关于该功能的技术架构图，图中可以包含以下内容：
+![PostgreSQL Operator 架构](./assets/operator.png)
 
-- 核心组件：例如 Operator、任务、中间件等，并在图中描绘出各个组件之间的联系及其作用。
-- 数据流程：例如引入的资源、资源之间的依赖关系，以及资源被消费的流程等。
-- 部署架构：例如多集群部署、高可用设计等。
+PostgreSQL Operator 采用 Kubernetes Operator 模式管理 PostgreSQL 集群，主要包含以下核心组件：
 
-在架构图下方增加对该图片的描述，说明图片的含义及其中各部分的作用。
+## 核心组件
 
-对架构图中引入的概念进行简要介绍。如果某个概念需要更详细的说明，请链接到「核心概念」对应的章节。---
-weight: 20
----
+1. **Operator 控制器**
+   - 监听 PostgreSQL 自定义资源（CRD）的变化
+   - 负责集群的创建、扩缩容、配置更新等操作
+   - 管理集群的生命周期
 
-# 架构
+2. **Patroni**
+   - 提供高可用性保障
+   - 处理主从切换和故障转移
+   - 管理集群拓扑和成员状态
 
-// 待补充架构图及说明
+3. **Spilo**
+   - 提供 PostgreSQL 容器镜像
+   - 集成 Patroni 和 PostgreSQL
+   - 处理初始化配置和启动
+
+4. **pgBouncer**
+   - 提供连接池功能
+   - 优化数据库连接管理
+   - 支持读写分离
+
+5. **监控组件**
+   - 集成 Prometheus 指标收集
+   - 提供 Grafana 仪表盘
+   - 支持告警规则配置
+
+## 数据流程
+
+1. 用户通过 Kubernetes API 创建 PostgreSQL 自定义资源
+2. Operator 控制器监听资源变化并创建相关 Kubernetes 资源
+3. Patroni 负责集群的初始化和高可用管理
+4. Spilo 启动 PostgreSQL 实例并应用配置
+5. pgBouncer 提供连接池服务
+6. 监控组件收集指标并展示
+
+## 部署架构
+
+PostgreSQL Operator 支持以下部署模式：
+
+- **单集群模式**：在单个 Kubernetes 集群中运行
+- **多集群模式**：跨多个 Kubernetes 集群管理 PostgreSQL 实例
+- **高可用模式**：通过 Patroni 实现自动故障转移
+- **读写分离模式**：使用 pgBouncer 实现读写分离
+
+## 相关概念
+
+- [自定义资源定义 (CRD)](../concepts/crd.mdx)
+- [高可用架构](../concepts/ha.mdx)
+- [连接池](../concepts/connection_pool.mdx)
+- [监控体系](../concepts/monitoring.mdx)
