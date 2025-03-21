@@ -1,0 +1,92 @@
+---
+weight: 3
+---
+
+# 实例详情
+
+## 功能简介
+查看 PostgreSQL 实例的详细信息，包括：
+- 实例的基本信息和状态
+- 数据库连接信息
+- 资源配置和存储信息
+- 调度配置
+- 相关 Kubernetes 资源
+
+## 注意事项
+1. 查看 Secret 需要相应的 Kubernetes RBAC 权限
+2. 实例详情页面展示的信息来自 Kubernetes CRD 和实际运行状态
+3. 部分配置信息在实例创建后不可修改
+
+## 操作步骤
+<Tabs>
+<Tab label="命令行操作">
+
+### 查看实例基本信息
+```bash
+kubectl -n <命名空间> get postgresql <实例名称> -o yaml
+```
+
+### 查看数据库连接信息
+```bash
+# 查看 PostgreSQL 用户密码
+kubectl -n <命名空间> get secret <实例名称>.credentials.postgresql.acid.zalan.do -o yaml
+
+# 查看连接端点
+kubectl -n <命名空间> get svc <实例名称>
+```
+
+### 查看资源配置
+```bash
+# 查看 Pod 资源限制
+kubectl -n <命名空间> get pod <实例名称>-0 -o yaml | grep resources -A 5
+
+# 查看存储配置
+kubectl -n <命名空间> get pvc pgdata-<实例名称>-0 -o yaml
+```
+
+### 查看调度配置
+```bash
+# 查看节点亲和性
+kubectl -n <命名空间> get postgresql <实例名称> -o yaml | grep affinity -A 10
+
+# 查看容忍配置
+kubectl -n <命名空间> get postgresql <实例名称> -o yaml | grep tolerations -A 5
+```
+
+</Tab>
+
+<Tab label="界面操作">
+
+1. 在左侧导航栏中，单击 **PostgreSQL**
+2. 选择目标命名空间
+3. 在实例列表中选择需要查看的实例，进入实例详情页面
+
+实例详情页面包含以下信息：
+
+### 基本信息
+- 状态：实例当前运行状态
+- 保密字典：包含数据库用户密码的 Kubernetes Secret
+- 部署位置：实例部署的 Kubernetes 节点
+- 显示名称：实例的可读名称
+- 创建人：实例创建者
+- 创建时间：实例创建时间
+
+### 配置信息
+- 数据库版本：PostgreSQL 版本
+- 副本数：当前运行的副本数量
+- 规格：CPU 和内存资源配置
+- 内部路由：读写和只读服务的 ClusterIP
+- 存储类：使用的存储类
+- 持久卷声明：数据存储的 PVC
+
+### 调度配置
+- 节点标签：实例调度的节点标签要求
+- Pod 容忍：实例 Pod 的容忍配置
+
+</Tab>
+</Tabs>
+
+## 了解更多
+- [PostgreSQL Operator 架构](architecture.mdx)
+- [实例创建指南](01_create_instance.mdx)
+- [实例删除指南](02_delete_instance.mdx)

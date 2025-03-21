@@ -1,14 +1,74 @@
+---
+weight: 25
+---
+
 # 日志查询
 
-## 功能介绍
-查看和分析 PostgreSQL 运行日志。
+从容器层面了解 PostgreSQL 实例运行过程中的日志，例如 PostgreSQL 错误日志、慢查询日志等。妥善使用日志能帮助您快速定位问题，处理故障和异常。
+
+**注意**： 为节省磁盘空间，平台默认保留 7 天（最多 30 天）的日志记录。实际保留时长可在运维中心的 **日志** > **策略管理** 中设置。如需长久保存，请及时导出日志。
+
+## 前提条件
+
+如果界面提示无数据，请部署 **日志采集组件** 且组件运行正常。
 
 ## 操作步骤
+
 <Tabs>
+
 <Tab label="命令行操作">
-// 待补充
+
+### 查看 PostgreSQL 日志
+```bash
+# 查看主节点日志
+kubectl -n <命名空间> logs <实例名称>-0 -c postgres
+
+# 查看副本节点日志
+kubectl -n <命名空间> logs <实例名称>-1 -c postgres
+```
+
+### 查看慢查询日志
+```bash
+kubectl -n <命名空间> exec -it <实例名称>-0 -c postgres -- \
+  cat /var/log/postgresql/slow.log
+```
+
+### 查看审计日志
+```bash
+kubectl -n <命名空间> exec -it <实例名称>-0 -c postgres -- \
+  cat /var/log/postgresql/audit.log
+```
+
+### 导出日志到文件
+```bash
+kubectl -n <命名空间> logs <实例名称>-0 -c postgres > postgres.log
+```
+
 </Tab>
+
 <Tab label="界面操作">
-// 待补充
+
+1. 在左侧导航栏中，单击 **PostgreSQL**
+2. 单击 ***命名空间的名称***
+3. 单击 ***实例名称***
+4. 在 **日志** 页签中，设置查找条件：
+    * 查找特定容器组即 PostgreSQL 副本的日志：在 **容器组** 处，选择一个容器组，并单击 **搜索**
+    * 查找特定时间段内的日志：在 **时间范围** 处，选择一个时段
+5. 稍等片刻，并查看结果
+6. （可选）单击 <span style={{display: 'inline-block'}}>![](../assets/44buttonexport.png)</span>，导出日志
+
 </Tab>
 </Tabs>
+
+## 日志类型说明
+
+| 日志类型 | 说明 |
+|----------|------|
+| PostgreSQL 日志 | 包含数据库运行时的错误、警告等信息 |
+| 慢查询日志 | 记录执行时间超过阈值的 SQL 查询 |
+| 审计日志 | 记录数据库的访问和操作记录 |
+
+## 注意事项
+1. 日志文件默认存储在容器内的 /var/log/postgresql 目录
+2. 日志轮转策略可在 PostgreSQL 配置中调整
+3. 生产环境建议开启慢查询日志和审计日志
