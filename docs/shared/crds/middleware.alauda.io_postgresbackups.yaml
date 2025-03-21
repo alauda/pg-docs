@@ -1,0 +1,123 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.10.0
+  creationTimestamp: null
+  name: postgresbackups.middleware.alauda.io
+spec:
+  group: middleware.alauda.io
+  names:
+    kind: PostgresBackup
+    listKind: PostgresBackupList
+    plural: postgresbackups
+    shortNames:
+    - pgb
+    singular: postgresbackup
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: backup state
+      jsonPath: .status.state
+      name: state
+      type: string
+    - description: backup error
+      jsonPath: .status.error
+      name: error
+      type: string
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: PostgresBackup is the Schema for the postgresbackups API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: PostgresBackupSpec defines the desired state of PostgresBackup
+            properties:
+              cluster:
+                description: Cluster is the name of the PostgreSQL cluster to backup
+                type: string
+              executeNode:
+                description: ExecuteNode specifies the node where the backup job should
+                  run If empty, the backup controller will automatically select a
+                  node
+                type: string
+            required:
+            - cluster
+            type: object
+          status:
+            description: PostgresBackupStatus defines the observed state of PostgresBackup
+            properties:
+              backupName:
+                description: BackupName is the unique name of this backup instance
+                type: string
+              clusterUid:
+                description: ClusterUid is the unique identifier of the PostgreSQL
+                  cluster
+                type: string
+              configBackupStorage:
+                description: ConfigBackupStorage contains the configuration for the
+                  backup storage
+                properties:
+                  bucket:
+                    type: string
+                  name:
+                    type: string
+                  namespace:
+                    type: string
+                required:
+                - bucket
+                - name
+                - namespace
+                type: object
+              error:
+                description: Error contains any error messages from the backup operation
+                type: string
+              executeNode:
+                description: ExecuteNode is the node where the backup job is running
+                type: string
+              finishLsn:
+                description: FinishLsn is the log sequence number when the backup
+                  finished
+                format: int64
+                type: integer
+              finishTime:
+                description: FinishTime is when the backup operation completed
+                type: string
+              lastModified:
+                description: LastModified is the timestamp when the backup was last
+                  modified
+                type: string
+              pgVersion:
+                description: PGVersion is the PostgreSQL version of the cluster being
+                  backed up
+                type: string
+              startLsn:
+                description: StartLsn is the log sequence number when the backup started
+                format: int64
+                type: integer
+              startTime:
+                description: StartTime is when the backup operation began
+                type: string
+              state:
+                description: 'State represents the current state of the backup operation
+                  Possible values: "", "running", "failed", "succeeded", "deleteFailed"'
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
