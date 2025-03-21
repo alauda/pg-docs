@@ -1,0 +1,126 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.10.0
+  creationTimestamp: null
+  name: postgresrestores.middleware.alauda.io
+spec:
+  group: middleware.alauda.io
+  names:
+    kind: PostgresRestore
+    listKind: PostgresRestoreList
+    plural: postgresrestores
+    shortNames:
+    - pgr
+    singular: postgresrestore
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: backup state
+      jsonPath: .status.state
+      name: state
+      type: string
+    - description: restore error
+      jsonPath: .status.error
+      name: error
+      type: string
+    name: v1
+    schema:
+      openAPIV3Schema:
+        description: PostgresRestore is the Schema for the postgresrestores API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: PostgresRestoreSpec defines the desired state of PostgresRestore
+            properties:
+              backupCluster:
+                description: BackupCluster contains details about the source backup
+                  cluster
+                properties:
+                  name:
+                    description: Name of the source PostgreSQL cluster
+                    type: string
+                  storage:
+                    description: Storage configuration for accessing the backup
+                    properties:
+                      bucket:
+                        description: Bucket name where backups are stored
+                        type: string
+                      name:
+                        description: Name of the storage configuration
+                        type: string
+                      namespace:
+                        description: Namespace where the storage configuration is
+                          located
+                        type: string
+                      s3Option:
+                        description: S3Option contains S3-specific storage options
+                        properties:
+                          awsS3ForcePathStyle:
+                            description: AwsS3ForcePathStyle enables path-style S3
+                              URLs (s3.amazonaws.com/BUCKET/KEY)
+                            type: string
+                          s3ForcePathStyle:
+                            description: S3ForcePathStyle forces path-style S3 URLs
+                            type: boolean
+                          useWalg:
+                            description: UseWalg enables the WAL-G backup tool
+                            type: boolean
+                          useWalgBackup:
+                            description: UseWalgBackup enables WAL-G for backup operations
+                            type: boolean
+                          walgDisableS3Sse:
+                            description: WalgDisableS3Sse disables S3 server-side
+                              encryption for WAL-G
+                            type: boolean
+                        type: object
+                    required:
+                    - bucket
+                    - name
+                    - namespace
+                    type: object
+                  uid:
+                    description: Uid is the unique identifier of the source cluster
+                    type: string
+                type: object
+              targetCluster:
+                description: TargetCluster is the name of the PostgreSQL cluster to
+                  restore into
+                type: string
+              timestamp:
+                description: Timestamp specifies the point-in-time to restore to in
+                  RFC3339 format
+                type: string
+            required:
+            - backupCluster
+            - targetCluster
+            - timestamp
+            type: object
+          status:
+            description: PostgresRestoreStatus defines the observed state of PostgresRestore
+            properties:
+              error:
+                description: Error contains any error messages from the restore operation
+                type: string
+              state:
+                description: State represents the current state of the restore operation
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
