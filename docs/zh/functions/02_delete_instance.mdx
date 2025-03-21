@@ -1,0 +1,61 @@
+---
+weight: 2
+---
+
+# 删除实例
+
+删除 PostgreSQL 实例会删除创建的 CR 资源以及 Postgres Operator 根据 CR 资源创建的 StatefulSet、ConfigMap、Secret、PersistentVolumeClaim 等资源。
+
+## 操作步骤
+
+<Tabs>
+
+<Tab label="命令行操作">
+
+如果实例没有开启持久化，或者需要保留实例的持久化数据，执行以下命令来删除实例：
+
+```bash
+# 直接删除 PostgreSQL 实例
+kubectl -n default delete postgresql <实例名称>
+```
+
+如果删除实例的同时，也要删除持久化存储，可执行如下命令:
+
+```bash
+# 添加 finalizer 以删除 PVC
+kubectl -n default patch postgresql <实例名称> --type='merge' -p '{"metadata": {"finalizers": ["delete-pvc"]}}'
+
+# 删除 PostgreSQL 实例及其持久化存储
+kubectl -n default delete postgresql <实例名称>
+```
+> `delete-pvc` 是 Postgres Operator 内置的关键词，用于告诉 Operator 在删除实例的同时删除持久卷存储。
+
+删除后可通过以下命令确认实例状态：
+```bash
+kubectl -n default get postgresql
+```
+
+</Tab>
+
+<Tab label="界面操作">
+
+1. 在左侧导航栏中，单击 **PostgreSQL**
+2. 选择目标命名空间
+3. 在实例列表中选择要删除的实例
+4. 在实例详情页面的右上角，点击**操作**按钮
+5. 选择**删除**选项
+6. 对于开启了数据持久化的实例：
+   - 勾选"删除持久卷申明"来释放存储
+   - 不勾选来保留数据
+7. 在确认框中输入实例名称
+8. 点击**删除**
+
+</Tab>
+
+</Tabs>
+
+## 注意事项
+1. 删除实例前请确认已做好数据备份
+2. 删除操作不可逆，请谨慎操作
+3. 删除集群实例时，所有副本节点都会被删除
+4. 删除操作会同时删除关联的监控、日志等资源
