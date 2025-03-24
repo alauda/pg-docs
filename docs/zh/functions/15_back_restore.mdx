@@ -1,14 +1,152 @@
+---
+weight: 15
+---
+
 # 备份恢复
 
 ## 功能介绍
-提供物理备份和逻辑备份两种方式保障数据安全。
+提供基于存储的物理备份和恢复功能，保障数据安全。支持手动触发备份和恢复到新实例。
 
 ## 操作步骤
 <Tabs>
 <Tab label="命令行操作">
-// 待补充
+
+### 配置备份存储
+```bash
+kubectl patch postgresql <实例名称> -n <命名空间> --type='merge' -p '
+spec:
+  backup:
+    retainDay: 7
+    storage:
+      name: <存储配置名称>
+      bucket: <存储桶名称>
+      namespace: <存储配置命名空间>
+'
+```
+
+### 创建备份
+```bash
+cat <<EOF | kubectl create -n <命名空间> -f -
+kind: PostgreSQLBackup
+apiVersion: middleware.alauda.io/v1
+metadata:
+  name: <备份名称>
+  namespace: <命名空间>
+  labels:
+    cluster-name: <集群名称>
+    trigger.type: manual
+spec:
+  cluster: <集群名称>
+EOF
+```
+
+### 查看备份状态
+```bash
+kubectl get postgresbackup <备份名称> -n <命名空间> -o yaml
+```
+
+### 恢复数据库
+```bash
+cat <<EOF | kubectl create -n <命名空间> -f -
+apiVersion: middleware.alauda.io/v1
+kind: PostgresRestore
+metadata:
+  labels:
+    cluster-name: <源集群名称>
+  name: <恢复任务名称>
+spec:
+  timestamp: '<备份时间>'
+  targetCluster: |
+    apiVersion: acid.zalan.do/v1
+    kind: postgresql
+    metadata:
+      name: <新实例名称>
+    spec:
+      # 新实例配置
+      databases:
+        foo: foo
+      numberOfInstances: 2
+      postgresql:
+        version: "14"
+      resources:
+        limits:
+          cpu: "1"
+          memory: 1Gi
+        requests:
+          cpu: "1"
+          memory: 1Gi
+      volume:
+        size: 1Gi
+        storageClass: <存储类>
+  backupCluster:
+    name: <源集群名称>
+EOF
+```
+
 </Tab>
+
 <Tab label="界面操作">
-// 待补充
+
+1. 在左侧导航栏中，单击 **PostgreSQL**
+2. 选择目标命名空间
+3. 在实例列表中选择目标实例
+4. 点击**备份恢复**Tab页
+
+### 配置备份存储
+1. 点击**配置存储**按钮
+2. 填写存储配置信息：
+   - 存储配置名称
+   - 存储桶名称
+   - 存储配置命名空间
+   - 备份保留天数
+3. 点击**保存**
+
+### 创建备份
+1. 点击**创建备份**按钮
+2. 输入备份名称
+3. 点击**确定**
+
+### 查看备份状态
+1. 在备份列表中选择目标备份
+2. 查看备份状态信息：
+   - 备份时间
+   - 备份大小
+   - 备份状态
+   - 执行节点
+
+### 恢复数据库
+1. 点击**恢复数据库**按钮
+2. 选择要恢复的备份
+3. 配置新实例参数：
+   - 实例名称
+   - 副本数量
+   - 资源配置
+   - 存储配置
+4. 点击**确定**开始恢复
+
 </Tab>
 </Tabs>
+
+## 备份状态说明
+备份状态字段说明：
+
+| 字段 | 说明 |
+|------|------|
+| backupName | 备份文件名称 |
+| clusterUid | 集群唯一标识 |
+| configBackupStorage | 备份存储配置 |
+| executeNode | 执行备份的节点 |
+| finishLsn | 备份结束的LSN位置 |
+| finishTime | 备份完成时间 |
+| lastModified | 备份最后修改时间 |
+| pgVersion | PostgreSQL版本 |
+| startLsn | 备份开始的LSN位置 |
+| startTime | 备份开始时间 |
+| state | 备份状态 |
+
+## 注意事项
+1. 备份存储配置需要在创建备份前完成
+2. 恢复操作会创建新的PostgreSQL实例
+3. 备份保留天数到期后会自动删除
+4. 恢复过程中请勿对源集群进行写操作
+5. 确保目标集群的存储类与源集群兼容
