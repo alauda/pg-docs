@@ -1,0 +1,131 @@
+---
+weight: 20
+sourceSHA: 3d387753069c25b524b552547f8154602f94c7dfeb6ff1e46e32c9429ff6f410
+---
+
+# Configuring a High Availability PostgreSQL Cluster
+
+## Overview
+
+This guide explains how to configure a highly available PostgreSQL cluster on Kubernetes, using Patroni for automated failover and cluster management.
+
+## Use Cases
+
+- Database deployment in production environments
+- Databases for critical business systems
+- Applications requiring high availability assurance
+
+## Prerequisites
+
+1. PostgreSQL Operator must be installed
+2. A storage class supporting dynamic provisioning must be configured
+3. Permissions to create CRD resources must be granted
+4. Ensure the Kubernetes cluster has sufficient resources (at least 3 available nodes)
+
+## Steps
+
+### 1. Create a High Availability Cluster
+
+```bash
+cat <<EOF | kubectl create -n default -f -
+apiVersion: acid.zalan.do/v1
+kind: postgresql
+metadata:
+  name: pg-ha-cluster
+spec:
+  teamId: my-team
+  numberOfInstances: 3
+  postgresql:
+    version: "14"
+  resources:
+    requests:
+      cpu: "1"
+      memory: 2Gi
+    limits:
+      cpu: "2"
+      memory: 4Gi
+  volume:
+    size: 50Gi
+    storageClass: ssd
+  patroni:
+    ttl: 30
+    loop_wait: 10
+    retry_timeout: 10
+    maximum_lag_on_failover: 1048576
+EOF
+```
+
+### 2. Verify Cluster Status
+
+```bash
+kubectl get postgresql pg-ha-cluster -o yaml
+```
+
+Example Output:
+
+```yaml
+status:
+  PostgresClusterStatus: Running
+  pods:
+  - pg-ha-cluster-0
+  - pg-ha-cluster-1
+  - pg-ha-cluster-2
+  master: pg-ha-cluster-0
+```
+
+### 3. Configure Connection Pooler (Optional)
+
+```bash
+kubectl patch postgresql pg-ha-cluster --type='merge' -p '
+spec:
+  enableConnectionPooler: true
+  connectionPooler:
+    numberOfInstances: 2
+    mode: "transaction"
+'
+```
+
+### 4. Configure Monitoring (Optional)
+
+```bash
+kubectl patch postgresql pg-ha-cluster --type='merge' -p '
+spec:
+  enableLogicalBackup: true
+  enableConnectionPooler: true
+  enableReplicaConnectionPooler: true
+'
+```
+
+## Parameter Description
+
+| Parameter                     | Default Value | Description                    |
+|------------------------------|---------------|--------------------------------|
+| numberOfInstances             | 3             | Number of cluster nodes (odd number recommended) |
+| patroni.ttl                  | 30            | Lease time for master node (seconds) |
+| patroni.loop_wait             | 10            | Interval for status checks (seconds) |
+| patroni.retry_timeout         | 10            | Timeout for retries (seconds)  |
+| maximum_lag_on_failover      | 1048576       | Maximum allowed replication lag (bytes) |
+
+## Result Validation
+
+1. Check if the cluster status is Running
+2. Confirm that all Pods are operating normally
+3. Test failover:
+   ```bash
+   kubectl delete pod pg-ha-cluster-0
+   ```
+   Observe the leader election process
+
+## Notes
+
+1. It is recommended to use SSD storage in production environments
+2. Configure resource limits appropriately
+3. Regularly test failover scenarios
+4. Set up monitoring alerts
+5. Ensure data backups are in place
+
+## Learn More
+
+- [High Availability Architecture](../concepts/ha.mdx)
+- [Monitoring Configuration](../functions/35_monitor.mdx)
+- [Backup and Restore](../functions/15_back_restore.mdx)

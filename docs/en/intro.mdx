@@ -1,0 +1,68 @@
+---
+weight: 10
+sourceSHA: b0e370ce82eeaa40d6cbf85fecfa5aa52540f15b9c982a974028c909fe8ed6ab
+---
+
+# Introduction
+
+## PostgreSQL Operator Introduction
+
+Alauda Database for PostgreSQL is a Kubernetes-native PostgreSQL management solution built on the Zalando Postgres Operator. It implements the full lifecycle management of PostgreSQL clusters through Custom Resource Definitions (CRDs), supporting core operational capabilities such as automated failover, rolling upgrades, and backup recovery, enabling enterprises to run production-grade PostgreSQL databases effortlessly on Kubernetes.
+
+## Core Advantages
+
+The core advantages of the PostgreSQL Operator are as follows:
+
+- **Automated Operations**\
+  Automatically handles complex operations such as cluster deployment, scaling, and backup recovery based on the Operator pattern, reducing manual intervention.
+
+- **High Availability Architecture**\
+  Integrates Patroni to achieve automatic failover, ensuring continuous availability of database services.
+
+- **Elastic Scalability**\
+  Supports real-time adjustments of resources like CPU, memory, and storage to respond to changing business needs.
+
+- **Multi-Cloud Ready**\
+  Provides seamless integration with AWS S3, Google Cloud Storage, and Azure Blob Storage, enabling cross-cloud backup and recovery.
+
+- **Security Compliance**\
+  Supports enterprise-grade security features such as TLS encrypted communication, RBAC access control, and regular password rotation.
+
+- **Observability**\
+  Built-in Prometheus metrics monitoring and log integration provide complete insights into database operations.
+
+## Use Cases
+
+The primary use cases for the PostgreSQL Operator include:
+
+- **Cloud-Native Application Database**\
+  Provides high-availability PostgreSQL instances for microservices architectures, seamlessly fitting CI/CD pipelines.
+
+- **Hybrid Cloud Data Services**\
+  Manages PostgreSQL instances across clouds/clusters through a unified Operator.
+
+- **Critical Business Systems**\
+  Financial-grade high availability guarantees, supporting second-level failover and zero data loss recovery.
+
+- **Data Security Compliance**\
+  Backup retention policies and access control that meet regulatory requirements such as GDPR.
+
+- **Development and Testing Environments**\
+  Quickly clones production databases and supports on-demand creation of isolated testing environments.
+
+## Usage Limitations
+
+- **Version Support**\
+  Currently supports PostgreSQL versions 11-15.
+
+- **Cluster Size**\
+  A single cluster supports up to 15 replica nodes.
+
+- **Storage Requirements**\
+  Must use StorageClasses that support dynamic provisioning.
+
+- **Kubernetes Version**\
+  Requires Kubernetes version 1.19 or above.
+
+- **Resource Requirements**\
+  Minimum configuration requirement is 2 CPU cores and 4GB of memory.

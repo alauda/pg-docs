@@ -1,0 +1,75 @@
+---
+weight: 25
+sourceSHA: 4c1488e4ba901d34a5165a2c7af6b545507e828d2a23eebeabd06eb4eadd02b3
+---
+
+# Log Query
+
+Understand the logging process of PostgreSQL instances from the container level, such as PostgreSQL error logs, slow query logs, etc. Properly utilizing logs can help you quickly locate issues, address faults, and handle exceptions.
+
+**Note**: To save disk space, the platform retains log records for 7 days by default (up to 30 days). The actual retention duration can be set in the operations center under **Logs** > **Policy Management**. If you need to retain logs for a longer period, please export them in a timely manner.
+
+## Prerequisites
+
+If the interface indicates no data, please deploy the **Log Collection Component** and ensure it is running properly.
+
+## Operation Steps
+
+<Tabs>
+  <Tab label="Command Line Operations">
+    ### View PostgreSQL Logs
+
+    ```bash
+    # View the primary node logs
+    kubectl -n <namespace> logs <instance-name>-0 -c postgres
+
+    # View the replica node logs
+    kubectl -n <namespace> logs <instance-name>-1 -c postgres
+    ```
+
+    ### View Slow Query Logs
+
+    ```bash
+    kubectl -n <namespace> exec -it <instance-name>-0 -c postgres -- \
+      cat /var/log/postgresql/slow.log
+    ```
+
+    ### View Audit Logs
+
+    ```bash
+    kubectl -n <namespace> exec -it <instance-name>-0 -c postgres -- \
+      cat /var/log/postgresql/audit.log
+    ```
+
+    ### Export Logs to File
+
+    ```bash
+    kubectl -n <namespace> logs <instance-name>-0 -c postgres > postgres.log
+    ```
+  </Tab>
+
+  <Tab label="GUI Operations">
+    1. Click **PostgreSQL** in the left navigation bar.
+    2. Click on ***namespace name***.
+    3. Click on ***instance name***.
+    4. In the **Logs** tab, set the search criteria:
+       - To search for logs from a specific Pods, select a Pods in the **Pods** field, and click **Search**.
+       - To search for logs within a specific time frame, select a period in the **Time Range** field.
+    5. Wait a moment and check the results.
+    6. (Optional) Click <span style={{display: 'inline-block'}}>![](../../zh/assets/44buttonexport.png)</span> to export the logs.
+  </Tab>
+</Tabs>
+
+## Log Type Descriptions
+
+| Log Type          | Description                               |
+| ----------------- | ----------------------------------------- |
+| PostgreSQL Log    | Contains information on errors, warnings, etc. during database runtime |
+| Slow Query Log    | Records SQL queries that exceed the threshold execution time  |
+| Audit Log         | Records access and operation logs for the database |
+
+## Notes
+
+1. Log files are stored by default in the /var/log/postgresql directory inside the container.
+2. Log rotation policies can be adjusted in the PostgreSQL configuration.
+3. It is recommended to enable slow query logs and audit logs in production environments.

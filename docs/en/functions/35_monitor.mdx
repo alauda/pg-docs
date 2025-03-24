@@ -1,0 +1,57 @@
+---
+sourceSHA: d459e623c30894d20a7e3c1aca414a25c3366bb143154fa27bd7df4390494027
+---
+
+# Monitoring
+
+## Overview
+
+The monitoring data embedded in the panel can be used for PostgreSQL monitoring and alerting from the perspectives of resources, performance, and capacity, and it supports the configuration of notification policies.
+
+The intuitively presented monitoring data can provide decision support for operational inspections or performance tuning.
+
+## Monitoring Metrics
+
+The platform collects commonly used monitoring metrics related to the resource, performance, and capacity of PostgreSQL by default. In the instance's **Monitoring** tab, real-time monitoring data of these metrics can be viewed.
+
+| Metric      | Description                             |
+|-------------|-----------------------------------------|
+| CPU Utilization | The percentage of CPU time used by PostgreSQL processes |
+| Memory Usage    | The amount of resident memory and virtual memory used by PostgreSQL processes |
+| File Descriptors   | The number of file descriptors opened by PostgreSQL |
+| Connection Count | The number of current active connections and the maximum connection limit |
+| Transaction Statistics | The number of committed and rolled back transactions for each database |
+| Query Statistics | The number of SELECT, INSERT, UPDATE, and DELETE operations |
+| Cache Hit Rate   | The cache hit rate percentage for each database |
+| Lock Statistics  | The number and waiting time of table-level locks |
+| Temporary Files  | The size of temporary files created by each database |
+| Checkpoints      | The frequency of checkpoints and the volume of data written |
+| Conflicts/Deadlocks | The number of conflicts and deadlocks that occur in each database |
+| Background Writes | Statistics on the buffer of the background writer |
+
+## Main Monitoring Item Descriptions
+
+### Resource Usage
+
+- **CPU Utilization**: Reflects the CPU load of PostgreSQL processes
+- **Memory Usage**: Includes resident memory and virtual memory, monitoring for memory leaks and overuse
+- **File Descriptors**: Ensure that the system limits are not reached
+
+### Performance Metrics
+
+- **Transaction Statistics**: Tracks the commit/rollback rate for each database, assessing transaction success rates
+- **Query Statistics**: Analyzes the ratio of various types of queries to identify performance bottlenecks
+- **Cache Hit Rate**: Evaluates the efficiency of the shared buffer, which should maintain a hit rate above 95%
+- **Lock Statistics**: Detects contention for table-level locks
+
+### Capacity Planning
+
+- **Connection Count**: Monitors connection pool usage and adjusts max\_connections in a timely manner
+- **Temporary Files**: Identifies large queries that need optimization
+- **Checkpoints**: Evaluates the impact of checkpoint frequency on performance
+
+## Notes
+
+1. Monitoring data is retained for 7 days by default
+2. Some metrics require the statistics collector to be enabled
+3. It is recommended to set alert thresholds for critical metrics

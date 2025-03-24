@@ -1,0 +1,186 @@
+---
+weight: 1
+sourceSHA: 0cedde752e61fb3a6d6dbdc92f59d504a97e23765fdd7d96ab4846f5f7e74b39
+---
+
+# Create an Instance
+
+## Feature Overview
+
+This feature allows users to create and manage PostgreSQL database instances within a Kubernetes cluster. Users can quickly deploy PostgreSQL instances that meet their needs by configuring resource specifications, parameter templates, account information, and more.
+
+## Prerequisites
+
+Before creating a PostgreSQL instance, please ensure that:
+
+1. Appropriate storage classes have been configured.
+2. Postgres Operator is correctly installed and running.
+3. You have the necessary permissions to create resources.
+
+## Version Support
+
+Currently, PostgreSQL versions 11-15 are supported, with the recommendation to use the latest stable version.
+
+## Architecture Choices
+
+Postgres Operator supports the following architectures:
+
+- **Single Node**: Suitable for development and testing environments.
+- **Master-Slave Replication**: Recommended architecture for production environments, supporting automatic failover.
+
+## Operational Steps
+
+<Tabs>
+  <Tab label="Command Line Operations">
+    ### Create a Single Node Instance
+
+    ```bash
+    cat << EOF | kubectl -n default create -f -
+    apiVersion: acid.zalan.do/v1
+    kind: postgresql
+    metadata:
+      name: pg-single
+      namespace: default
+    spec:
+      ipFamilyPrefer: ""
+      teamId: ACID
+      enableExporter: true
+      enablePgpool2: false
+      spiloPrivileged: false
+      spiloRunAsGroup: 103
+      spiloRunAsUser: 101
+      spiloAllowPrivilegeEscalation: false
+      enableReadinessProbe: true
+      postgresql:
+        parameters:
+          log_directory: /var/log/pg_log
+        version: "14"
+      numberOfInstances: 1
+      resources:
+        requests:
+          cpu: "1"
+          memory: 2Gi
+        limits:
+          cpu: "1"
+          memory: 2Gi
+      volume:
+        size: 10Gi
+        storageClass: default
+    EOF
+    ```
+
+    ### Create a Master-Slave Replication Cluster
+
+    ```bash
+    cat << EOF | kubectl -n default create -f -
+    apiVersion: acid.zalan.do/v1
+    kind: postgresql
+    metadata:
+      name: pg-ha
+      namespace: default
+    spec:
+      ipFamilyPrefer: ""
+      teamId: ACID
+      enableExporter: true
+      enablePgpool2: false
+      spiloPrivileged: false
+      spiloRunAsGroup: 103
+      spiloRunAsUser: 101
+      spiloAllowPrivilegeEscalation: false
+      enableReadinessProbe: true
+      postgresql:
+        parameters:
+          log_directory: /var/log/pg_log
+        version: "14"
+      numberOfInstances: 3
+      resources:
+        requests:
+          cpu: "1"
+          memory: 2Gi
+        limits:
+          cpu: "1"
+          memory: 2Gi
+      volume:
+        size: 50Gi
+        storageClass: default
+      patroni:
+        ttl: 30
+        loop_wait: 10
+        retry_timeout: 10
+    EOF
+    ```
+
+    After creation, you can check the instance status using the following command:
+
+    ```bash
+    kubectl -n default get postgresql
+    ```
+
+    Output field description:
+
+    | Field   | Description          |
+    | ------- | ------------------- |
+    | NAME    | Instance Name       |
+    | TEAM    | Associated Team     |
+    | VERSION | PostgreSQL Version   |
+    | PODS    | Number of Running Pods   |
+    | VOLUME  | Volume Size         |
+    | CPU     | CPU Resources       |
+    | MEMORY  | Memory Resources     |
+    | STATUS  | Instance Status      |
+    | AGE     | Creation Time       |
+  </Tab>
+
+  <Tab label="Interface Operations">
+    1. In the left navigation bar, click **PostgreSQL**.
+    2. Select the target namespace.
+    3. Click **Create PostgreSQL Instance**.
+    4. Configure the following parameters:
+
+    <table>
+      <tr>
+        <th>Configuration Item</th>
+        <th>Description</th>
+      </tr>
+
+      <tr>
+        <td>Instance Name</td>
+        <td>Unique identifier for the cluster</td>
+      </tr>
+
+      <tr>
+        <td>PostgreSQL Version</td>
+        <td>Select a supported PostgreSQL version</td>
+      </tr>
+
+      <tr>
+        <td>Number of Replicas</td>
+        <td>Set the number of cluster nodes</td>
+      </tr>
+
+      <tr>
+        <td>Specifications (Container Limit Values)</td>
+        <td>Set CPU and memory resource limits</td>
+      </tr>
+
+      <tr>
+        <td>Storage Class</td>
+        <td>Set the storage class</td>
+      </tr>
+
+      <tr>
+        <td>Storage Quota</td>
+        <td>Set the storage class and size</td>
+      </tr>
+    </table>
+
+    5. Click **Create** and wait for the instance status to change to **Running**.
+  </Tab>
+</Tabs>
+
+## Notes
+
+1. It is recommended to use a master-slave replication architecture in production environments.
+2. Ensure the storage class supports dynamic provisioning.
+3. Configure resource limits appropriately.
+4. Regularly back up critical data.

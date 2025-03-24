@@ -1,0 +1,101 @@
+---
+weight: 10
+sourceSHA: 38f59a15c071ab0a303b6820b5680be04d75059c63f71fcad0a7c855469090ca
+---
+
+# Cluster Creation Failure
+
+## Problem Description
+
+When creating a PostgreSQL cluster, the cluster status remains in "Creating" for an extended period before ultimately failing.
+
+## Common Errors
+
+- Incorrect storage configuration
+- Insufficient resource quotas
+- Network connection issues
+- Image pulling failures
+
+## Troubleshooting Steps
+
+### 1. Check Storage Configuration
+
+```bash
+kubectl get pvc -n <namespace>
+kubectl describe pvc <pvc-name> -n <namespace>
+```
+
+Common issues:
+
+- Storage class does not exist
+- Insufficient storage quota
+- PVC binding failure
+
+### 2. Check Resource Quotas
+
+```bash
+kubectl describe quota -n <namespace>
+```
+
+Common issues:
+
+- Insufficient CPU quota
+- Insufficient memory quota
+- Pod count limits
+
+### 3. Check Network Connection
+
+```bash
+kubectl get endpoints -n <namespace>
+```
+
+Common issues:
+
+- Service endpoints are unreachable
+- Network policy restrictions
+- DNS resolution failures
+
+### 4. Check Image Pulling
+
+```bash
+kubectl describe pod <pod-name> -n <namespace>
+```
+
+Common issues:
+
+- Image repository authentication failure
+- Incorrect image tag
+- Network connection timeout
+
+## Solutions
+
+### Storage Configuration Issues
+
+1. Ensure the storage class exists and is available
+2. Verify that the storage quota is sufficient
+3. Confirm the PVC binding status
+
+### Resource Quota Issues
+
+1. Adjust the resource quotas in the namespace
+2. Optimize the cluster resource configuration
+3. Clean up unused resources
+
+### Network Connection Issues
+
+1. Review the network policy configuration
+2. Validate DNS resolution
+3. Test service endpoint connectivity
+
+### Image Pulling Issues
+
+1. Configure the correct image repository authentication
+2. Use valid image tags
+3. Check the network connection
+
+## Preventive Measures
+
+1. Validate the storage configuration before creating the cluster
+2. Ensure the namespace has sufficient resource quotas
+3. Configure correct network policies
+4. Use a reliable image repository

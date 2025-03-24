@@ -1,0 +1,92 @@
+---
+weight: 30
+sourceSHA: c5462003db6103ef6d90ab59b28e62cc831677603c9f0d327da49bb3b9928bd8
+---
+
+# Backup and Restore Failure
+
+## Problem Description
+
+Failures occurring during backup or restore operations may manifest as:
+
+- Backup tasks getting stuck
+- Errors during the restore process
+- Data inconsistency
+
+## Common Errors
+
+1. Incorrect storage configuration
+2. Permission issues
+3. Network connection failures
+4. Insufficient resources
+
+## Troubleshooting Steps
+
+### 1. Check Backup Configuration
+
+```bash
+kubectl get postgresbackup <backup-name> -o yaml
+```
+
+Focus on the following fields:
+
+- spec.storage
+- status.state
+- status.message
+
+### 2. Review Backup Logs
+
+```bash
+kubectl logs <backup-task-pod-name>
+```
+
+Key logs include:
+
+- Storage connection information
+- Backup progress
+- Error messages
+
+### 3. Verify Storage Access
+
+```bash
+kubectl exec -it <pod-name> -- s3cmd ls s3://<bucket-name>/
+```
+
+### 4. Check Resource Usage
+
+```bash
+kubectl top pod -n <namespace>
+```
+
+## Solutions
+
+### Storage Configuration Issues
+
+1. Verify the correctness of storage configuration
+2. Check bucket permissions
+3. Test storage connection
+
+### Permission Issues
+
+1. Configure the correct access keys
+2. Validate IAM roles
+3. Check Kubernetes Secrets
+
+### Network Issues
+
+1. Check network policies
+2. Validate storage endpoint reachability
+3. Optimize network configuration
+
+### Insufficient Resources
+
+1. Increase resource quotas for backup tasks
+2. Optimize backup strategies
+3. Scale cluster resources
+
+## Preventive Measures
+
+1. Regularly test the backup and restore processes
+2. Monitor backup task statuses
+3. Configure reasonable resource limits
+4. Set backup retention policies

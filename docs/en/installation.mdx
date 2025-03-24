@@ -1,0 +1,92 @@
+---
+weight: 15
+i18n:
+  title:
+    en: Installation
+sourceSHA: c55a845ab91d27019bf6c121320a74e077b3fe7e3ab3ffc4431cc8c2001d9fb3
+title: Installation
+---
+
+# Deployment
+
+## Install Alauda Application Services Essentials Plugin
+
+::: tip Optional Deployment
+The plugin is a foundational component for the Application Services graphical interface. It can be skipped if the graphical interface is not needed.
+:::
+
+### Prerequisites
+
+1. Download the Alauda Application Services Essentials installation package that matches your platform.
+2. Use the platform's application publishing capability to publish Alauda Application Services Essentials to the ***global cluster***.
+
+### Steps
+
+<Tabs>
+  <Tab label="Web Console">
+    1. In the left navigation bar, go to **Application Store Management** > **Cluster Plugins**.
+    2. Select the **global** cluster.
+    3. Click the action button next to the **Alauda Application Services Essentials** plugin > **Deploy**.
+  </Tab>
+</Tabs>
+
+## Install Alauda Application Services RDS Framework Plugin
+
+::: tip Optional Deployment
+The plugin is a foundational component for the Application Services graphical interface. It can be skipped if the graphical interface is not needed.
+:::
+
+### Prerequisites
+
+1. Download the Alauda Application Services RDS Framework installation package that matches your platform.
+2. Use the platform's application publishing capability to publish Alauda Application Services RDS Framework to any cluster where you wish to use the Application Services graphical capabilities.
+
+### Steps
+
+<Tabs>
+  <Tab label="Web Console">
+    1. Log in to the platform and navigate to the **Platform Management** page.
+    2. In the left navigation bar, select **Application Store Management** -> **Operator**, and enter the **Operator Hub** page.
+    3. Find **Alauda Application Services RDS Framework**, click **Deploy**, and enter the deployment page.
+
+    Configuration Parameters:
+
+    | **Parameter**   | **Recommended Configuration**                                            |
+    | :------- | :-------------------------------------------------- |
+    | **Upgrade Strategy** | **Manual**: You need to manually confirm the upgrade to the latest version when a new version is available in the Operator Hub. |
+    | **Deployment Mode** | **Cluster**: All namespaces under the cluster share a single Operator for instance creation and management, resulting in lower resource usage.    |
+    | **Channel**   | The default Channel is **stable**.                           |
+    | **Namespace** | Choose **Recommended Namespace**: It will be created automatically if none exists.                               |
+
+    4. On the **Deploy Operator** page, choose **Default Configuration**, then click **Deploy** to complete the deployment of **Alauda Application Services RDS Framework**.
+  </Tab>
+</Tabs>
+
+## Install Alauda Support for PostgreSQL Plugin
+
+### Prerequisites
+
+1. Download the plugin installation package that matches your platform.
+2. Use the platform's application publishing capability to publish the plugin to any cluster where you wish to use Alauda Support for PostgreSQL component capabilities.
+
+### Steps
+
+<Tabs>
+  <Tab label="Web Console">
+    1. Log in to the platform and navigate to the **Platform Management** page.
+    2. In the left navigation bar, select **Application Store Management** -> **Operator**, and enter the **Operator Hub** page.
+    3. Find **Alauda Support for PostgreSQL**, click **Deploy**.
+    4. **Alauda Support for PostgreSQL** is a platform-certified plugin, and there will be a prompt for the certified Operator. Click **Continue with Deployment** to enter the deployment interface.
+
+    Configuration Parameters:
+
+    | **Parameter**   | **Recommended Configuration**                                            |
+    | :------- | :-------------------------------------------------- |
+    | **Upgrade Strategy** | **Manual**: You need to manually confirm the upgrade to the latest version when a new version is available in the Operator Hub. |
+    | **Deployment Mode** | **Cluster**: All namespaces under the cluster share a single Operator for instance creation and management, resulting in lower resource usage.    |
+    | **Channel**   | The default Channel is **stable**.                           |
+    | **Namespace** | Choose **Recommended Namespace**: It will be created automatically if none exists.                               |
+
+    4. On the **Deploy Operator** page, choose **Default Configuration**, then click **Deploy** to complete the deployment.
+  </Tab>
+</Tabs>

@@ -1,0 +1,54 @@
+---
+weight: 10
+sourceSHA: 1567f8f88ca790df66c96f45d0c4363a5a8e0bd9cc091eaae4fd18938a7e8f48
+---
+
+# Custom Resource Definition (CRD)
+
+## What is CRD
+
+CRD (Custom Resource Definition) is an extension mechanism in Kubernetes that allows users to define their own resource types. The PostgreSQL Operator manages the lifecycle of PostgreSQL clusters through CRD.
+
+## CRD Structure
+
+The PostgreSQL CRD mainly contains the following fields:
+
+```yaml
+apiVersion: acid.zalan.do/v1
+kind: postgresql
+metadata:
+  name: pg-cluster
+spec:
+  teamId: my-team
+  postgresql:
+    version: "14"
+  numberOfInstances: 3
+  resources:
+    requests:
+      cpu: "1"
+      memory: 2Gi
+  volume:
+    size: 50Gi
+    storageClass: standard
+```
+
+| Field               | Description           |
+|---------------------|-----------------------|
+| teamId              | Team Identifier       |
+| postgresql.version   | PostgreSQL Version    |
+| numberOfInstances   | Number of Cluster Nodes|
+| resources           | Resource Requests and Limits |
+| volume              | Storage Configuration  |
+
+## Use Cases
+
+- Create a new PostgreSQL cluster
+- Modify cluster configuration
+- Scale the cluster up or down
+- Manage the lifecycle of the cluster
+
+## Notes
+
+1. Certain fields cannot be modified after the CRD is created
+2. Ensure the spec fields are configured correctly
+3. Set reasonable resource limits

@@ -1,0 +1,102 @@
+---
+weight: 20
+sourceSHA: a0d68152d5d7e76bd3ef50e946c1790c24e6c0622ad9b0130b67f6866d6963df
+---
+
+# Master-Slave Switch Exception
+
+## Problem Description
+
+An exception occurs during master-slave switching in the PostgreSQL cluster, which may lead to:
+
+- Extended switching time
+- Data inconsistency
+- Service interruption
+
+## Common Causes
+
+1. Network partition
+2. Storage performance issues
+3. Misconfigured settings
+4. Insufficient resources
+
+## Troubleshooting Steps
+
+### 1. Check Cluster Status
+
+```bash
+kubectl get postgresql <cluster-name> -o yaml
+```
+
+Key fields to pay attention to:
+
+- status.PostgresClusterStatus
+- status.master
+- status.pods
+
+### 2. View Patroni Logs
+
+```bash
+kubectl logs <pod-name> -c patroni
+```
+
+Key logs to review:
+
+- Leader election process
+- Fault detection information
+- Switching timestamps
+
+### 3. Check Replication Status
+
+```bash
+kubectl exec -it <pod-name> -c postgres -- psql -c "\x" -c "select * from pg_stat_replication;"
+```
+
+Key fields to pay attention to:
+
+- state
+- sync_state
+- replay_lag
+
+### 4. Verify Network Connection
+
+```bash
+kubectl exec -it <pod-name> -c postgres -- ping <other-node-IP>
+```
+
+## Solutions
+
+### Network Issues
+
+1. Check network policy configuration
+2. Validate communication between nodes
+3. Optimize network performance
+
+### Storage Issues
+
+1. Check storage performance metrics
+2. Optimize I/O configuration
+3. Upgrade storage hardware
+
+### Configuration Optimization
+
+1. Adjust Patroni parameters:
+   - ttl
+   - loop_wait
+   - retry_timeout
+2. Optimize PostgreSQL configuration:
+   - wal_keep_segments
+   - max_wal_senders
+
+### Resource Shortage
+
+1. Increase CPU and memory resources
+2. Optimize query performance
+3. Scale out cluster nodes
+
+## Preventive Measures
+
+1. Regularly test failover
+2. Monitor cluster health status
+3. Optimize resource configuration
+4. Configure reasonable alert thresholds

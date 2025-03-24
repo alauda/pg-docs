@@ -1,0 +1,161 @@
+---
+weight: 15
+sourceSHA: 4cc8df04756e18d818b094c09b3d6fe3ab7efdbdfaf286de51bcbc4d264774b9
+---
+
+# Backup and Restore
+
+## Function Introduction
+
+Provides storage-based physical backup and restore capabilities to ensure data security. It supports manually triggering backups and restoring to new instances.
+
+## Operating Steps
+
+<Tabs>
+  <Tab label="Command Line Operations">
+    ### Configure Backup Storage
+
+    ```bash
+    kubectl patch postgresql <instance-name> -n <namespace> --type='merge' -p '
+    spec:
+      backup:
+        retainDay: 7
+        storage:
+          name: <storage-config-name>
+          bucket: <bucket-name>
+          namespace: <storage-config-namespace>
+    '
+    ```
+
+    ### Create Backup
+
+    ```bash
+    cat <<EOF | kubectl create -n <namespace> -f -
+    kind: PostgreSQLBackup
+    apiVersion: middleware.alauda.io/v1
+    metadata:
+      name: <backup-name>
+      namespace: <namespace>
+      labels:
+        cluster-name: <cluster-name>
+        trigger.type: manual
+    spec:
+      cluster: <cluster-name>
+    EOF
+    ```
+
+    ### View Backup Status
+
+    ```bash
+    kubectl get postgresbackup <backup-name> -n <namespace> -o yaml
+    ```
+
+    ### Restore Database
+
+    ```bash
+    cat <<EOF | kubectl create -n <namespace> -f -
+    apiVersion: middleware.alauda.io/v1
+    kind: PostgresRestore
+    metadata:
+      labels:
+        cluster-name: <source-cluster-name>
+      name: <restore-task-name>
+    spec:
+      timestamp: '<backup-time>'
+      targetCluster: |
+        apiVersion: acid.zalan.do/v1
+        kind: postgresql
+        metadata:
+          name: <new-instance-name>
+        spec:
+          # New instance configuration
+          databases:
+            foo: foo
+          numberOfInstances: 2
+          postgresql:
+            version: "14"
+          resources:
+            limits:
+              cpu: "1"
+              memory: 1Gi
+            requests:
+              cpu: "1"
+              memory: 1Gi
+          volume:
+            size: 1Gi
+            storageClass: <storage-class>
+      backupCluster:
+        name: <source-cluster-name>
+    EOF
+    ```
+  </Tab>
+
+  <Tab label="Graphical Interface Operations">
+    1. Click **PostgreSQL** in the left navigation bar
+    2. Select the target namespace
+    3. Choose the target instance from the instance list
+    4. Click the **Backup and Restore** tab
+
+    ### Configure Backup Storage
+
+    1. Click the **Configure Storage** button
+    2. Fill in the storage configuration details:
+       - Storage Configuration Name
+       - Bucket Name
+       - Storage Configuration Namespace
+       - Backup Retention Days
+    3. Click **Save**
+
+    ### Create Backup
+
+    1. Click the **Create Backup** button
+    2. Enter the backup name
+    3. Click **OK**
+
+    ### View Backup Status
+
+    1. Select the target backup from the backup list
+    2. Check the backup status information:
+       - Backup Time
+       - Backup Size
+       - Backup Status
+       - Execution Node
+
+    ### Restore Database
+
+    1. Click the **Restore Database** button
+    2. Select the backup to be restored
+    3. Configure the new instance parameters:
+       - Instance Name
+       - Number of Replicas
+       - Resource Configuration
+       - Storage Configuration
+    4. Click **OK** to start the restore process
+  </Tab>
+</Tabs>
+
+## Backup Status Description
+
+Descriptions of backup status fields:
+
+| Field                | Description                             |
+|----------------------|-----------------------------------------|
+| backupName           | Backup file name                        |
+| clusterUid           | Unique identifier for the cluster      |
+| configBackupStorage  | Backup storage configuration            |
+| executeNode          | Node executing the backup               |
+| finishLsn            | LSN position at the end of the backup  |
+| finishTime           | Time when the backup is completed      |
+| lastModified         | Last modified time of the backup       |
+| pgVersion            | PostgreSQL version                      |
+| startLsn             | LSN position at the start of the backup|
+| startTime            | Time when the backup starts            |
+| state                | Backup status                           |
+
+## Precautions
+
+1. The backup storage configuration must be completed before creating a backup.
+2. The restore operation will create a new PostgreSQL instance.
+3. Backups will be automatically deleted after the retention period expires.
+4. Do not perform write operations on the source cluster during the restore process.
+5. Ensure that the storage class of the target cluster is compatible with that of the source cluster.

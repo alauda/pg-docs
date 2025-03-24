@@ -1,0 +1,39 @@
+---
+weight: 30
+sourceSHA: 4ce9ce1449d76dbb522801d601eecc63b35181da343b511e895d511408fac2cd
+---
+
+# Connection Pool
+
+## Feature Introduction
+
+pgBouncer provides connection pooling functionality, with key features including:
+
+1. **Connection Reuse**: Reduces database connection overhead.
+2. **Load Balancing**: Automatically distributes queries across different nodes.
+3. **Connection Limiting**: Prevents a single client from consuming too many connections.
+4. **Query Caching**: Improves performance for repeated queries.
+
+## Configuration Parameters
+
+| Parameter                | Default Value | Description             |
+| ------------------------ | ------------- | ----------------------- |
+| max\_client\_conn       | 100           | Maximum number of client connections |
+| default\_pool\_size     | 20            | Default pool size       |
+| reserve\_pool\_size     | 5             | Reserved pool size      |
+| pool\_mode              | session       | Pooling mode            |
+| auth\_type              | md5           | Authentication method    |
+
+## Use Cases
+
+1. High concurrency applications
+2. Microservices architecture
+3. Read-write splitting scenarios
+4. Connection count limiting scenarios
+
+## Precautions
+
+1. Set the pool size reasonably.
+2. Monitor the pool usage.
+3. Optimize queries regularly.
+4. Configure appropriate timeout settings.
