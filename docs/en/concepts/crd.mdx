@@ -1,17 +1,18 @@
 ---
 weight: 10
-sourceSHA: 1567f8f88ca790df66c96f45d0c4363a5a8e0bd9cc091eaae4fd18938a7e8f48
 ---
 
 # Custom Resource Definition (CRD)
 
 ## What is CRD
 
-CRD (Custom Resource Definition) is an extension mechanism in Kubernetes that allows users to define their own resource types. The PostgreSQL Operator manages the lifecycle of PostgreSQL clusters through CRD.
+CRD (Custom Resource Definition) is an extension mechanism in Kubernetes that allows users to define their own resource types. The PostgreSQL Operator provides multiple CRDs to manage PostgreSQL clusters and related operations.
 
-## CRD Structure
+## Main CRD Types
 
-The PostgreSQL CRD mainly contains the following fields:
+### 1. PostgreSQL Cluster (postgresql)
+
+The core CRD for managing PostgreSQL clusters, containing cluster configuration, resource allocation, backup settings etc.
 
 ```yaml
 apiVersion: acid.zalan.do/v1
@@ -19,9 +20,12 @@ kind: postgresql
 metadata:
   name: pg-cluster
 spec:
-  teamId: my-team
+  teamId: ACID
   postgresql:
     version: "14"
+    parameters:  # PostgreSQL configuration parameters
+      shared_buffers: "1GB"
+      work_mem: "64MB"
   numberOfInstances: 3
   resources:
     requests:
@@ -30,25 +34,90 @@ spec:
   volume:
     size: 50Gi
     storageClass: standard
+  backup:
+    schedule: "0 0 * * *"  # Daily backup
+    retainDay: 7           # Retain for 7 days
+    storage:
+      bucket: "my-backups"
+      name: "backup-storage"
+      namespace: "default"
 ```
 
-| Field               | Description           |
-|---------------------|-----------------------|
-| teamId              | Team Identifier       |
-| postgresql.version   | PostgreSQL Version    |
-| numberOfInstances   | Number of Cluster Nodes|
-| resources           | Resource Requests and Limits |
-| volume              | Storage Configuration  |
+### 2. PostgreSQL Backup (postgresbackup)
+
+Manages backup operations for PostgreSQL clusters.
+
+```yaml
+apiVersion: middleware.alauda.io/v1
+kind: PostgresBackup
+metadata:
+  name: pg-backup
+spec:
+  cluster: pg-cluster  # Cluster to backup
+  executeNode: node-1   # Node to execute backup
+status:
+  state: Succeeded      # Backup state
+  backupName: backup-20230324
+  startTime: "2023-03-24T00:00:00Z"
+  finishTime: "2023-03-24T00:30:00Z"
+```
+
+### 3. PostgreSQL Restore (postgresrestore)
+
+Manages restore operations for PostgreSQL clusters.
+
+```yaml
+apiVersion: middleware.alauda.io/v1
+kind: PostgresRestore
+metadata:
+  name: pg-restore
+spec:
+  backupCluster:
+    name: pg-cluster
+    storage:
+      bucket: "my-backups"
+      name: "backup-storage"
+      namespace: "default"
+  targetCluster: pg-new-cluster
+  timestamp: "2023-03-24T00:00:00Z"  # Restore to specific point in time
+status:
+  state: InProgress
+  error: ""  # Error message
+```
+
+## Key Fields
+
+| CRD Type | Field | Description |
+|----------|------|------|
+| postgresql | teamId | Team identifier |
+|  | postgresql.version | PostgreSQL version |
+|  | numberOfInstances | Number of cluster nodes |
+|  | resources | Resource requests and limits |
+|  | volume | Storage configuration |
+|  | backup | Backup configuration |
+| postgresbackup | cluster | Cluster to backup |
+|  | executeNode | Node to execute backup |
+|  | status.state | Backup state |
+| postgresrestore | backupCluster | Source backup cluster info |
+|  | targetCluster | Target restore cluster |
+|  | timestamp | Point-in-time to restore |
 
 ## Use Cases
 
-- Create a new PostgreSQL cluster
-- Modify cluster configuration
-- Scale the cluster up or down
-- Manage the lifecycle of the cluster
+- Create and manage PostgreSQL clusters
+- Configure automated backups and restores
+- Monitor cluster state and operation progress
+- Perform point-in-time recovery
+- Manage cluster resource allocation
 
-## Notes
+## Best Practices
 
-1. Certain fields cannot be modified after the CRD is created
-2. Ensure the spec fields are configured correctly
-3. Set reasonable resource limits
+1. Configure regular backups for production environments
+2. Set reasonable resource limits and storage sizes
+3. Use naming conventions for CRD resources
+4. Monitor key status fields (state, error)
+5. Test backup and restore procedures
+6. Use version control for CRD configurations
+
+## Learn More
+- [API Documentation](../apis/kubernetes_apis/postgres/index.mdx)

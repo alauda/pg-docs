@@ -30,17 +30,15 @@ Provides storage-based physical backup and restore capabilities to ensure data s
     ### Create Backup
 
     ```bash
-    cat <<EOF | kubectl create -n <namespace> -f -
-    kind: PostgreSQLBackup
+    cat <<EOF | kubectl create -f -
     apiVersion: middleware.alauda.io/v1
+    kind: PostgresBackup
     metadata:
       name: <backup-name>
       namespace: <namespace>
-      labels:
-        cluster-name: <cluster-name>
-        trigger.type: manual
     spec:
-      cluster: <cluster-name>
+      cluster: <instance-name>  # Replace with your PostgreSQL cluster name
+      executeNode: <pod-name>  # Optional: Specify the pod to execute the backup
     EOF
     ```
 
@@ -53,39 +51,44 @@ Provides storage-based physical backup and restore capabilities to ensure data s
     ### Restore Database
 
     ```bash
-    cat <<EOF | kubectl create -n <namespace> -f -
+    cat <<EOF | kubectl create -f -
     apiVersion: middleware.alauda.io/v1
     kind: PostgresRestore
     metadata:
-      labels:
-        cluster-name: <source-cluster-name>
-      name: <restore-task-name>
+      name: <restore-instance-name>
+      namespace: <namespace>
     spec:
-      timestamp: '<backup-time>'
+      backupCluster:
+        name: <backup-pg-cluster-name>
+        uid: <backup-pg-cluster-uid>
+        storage:
+          name: <storage-name>
+          namespace: <storage-namespace>
+          bucket: <s3-bucket-name>
       targetCluster: |
         apiVersion: acid.zalan.do/v1
         kind: postgresql
         metadata:
           name: <new-instance-name>
+          namespace: <new-instance-namespace>
         spec:
-          # New instance configuration
-          databases:
-            foo: foo
+          enableExporter: true
+          enablePgpool2: false
           numberOfInstances: 2
           postgresql:
             version: "14"
           resources:
             limits:
               cpu: "1"
-              memory: 1Gi
+              memory: 2Gi
             requests:
               cpu: "1"
-              memory: 1Gi
+              memory: 2Gi
+          teamId: ACID
           volume:
-            size: 1Gi
-            storageClass: <storage-class>
-      backupCluster:
-        name: <source-cluster-name>
+            size: 20Gi
+            storageClass: sc-topolvm
+      timestamp: "2023-07-26T14:36:38+00:00"  # Point-in-time to restore
     EOF
     ```
   </Tab>

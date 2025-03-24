@@ -26,17 +26,15 @@ spec:
 
 ### 创建备份
 ```bash
-cat <<EOF | kubectl create -n <命名空间> -f -
-kind: PostgreSQLBackup
+cat <<EOF | kubectl create -f -
 apiVersion: middleware.alauda.io/v1
+kind: PostgresBackup
 metadata:
   name: <备份名称>
   namespace: <命名空间>
-  labels:
-    cluster-name: <集群名称>
-    trigger.type: manual
 spec:
-  cluster: <集群名称>
+  cluster: <实例名称>  # Replace with your PostgreSQL cluster name
+  executeNode: <执行备份的pod名>  # Optional: Specify the pod to execute the backup
 EOF
 ```
 
@@ -47,39 +45,44 @@ kubectl get postgresbackup <备份名称> -n <命名空间> -o yaml
 
 ### 恢复数据库
 ```bash
-cat <<EOF | kubectl create -n <命名空间> -f -
+cat <<EOF | kubectl create -f -
 apiVersion: middleware.alauda.io/v1
 kind: PostgresRestore
 metadata:
-  labels:
-    cluster-name: <源集群名称>
-  name: <恢复任务名称>
+  name: <恢复实例名称>
+  namespace: <命名空间>
 spec:
-  timestamp: '<备份时间>'
+  backupCluster:
+    name: <备份PG集群实例名>
+    uid: <备份PG集群UID>
+    storage:
+      name: <存储名>
+      namespace: <存储命名空间>
+      bucket: <S3 bucket名>
   targetCluster: |
     apiVersion: acid.zalan.do/v1
     kind: postgresql
     metadata:
-      name: <新实例名称>
+      name: <新群实例名称>
+      namespace: <新集群实例名称>
     spec:
-      # 新实例配置
-      databases:
-        foo: foo
+      enableExporter: true
+      enablePgpool2: false
       numberOfInstances: 2
       postgresql:
         version: "14"
       resources:
         limits:
           cpu: "1"
-          memory: 1Gi
+          memory: 2Gi
         requests:
           cpu: "1"
-          memory: 1Gi
+          memory: 2Gi
+      teamId: ACID
       volume:
-        size: 1Gi
-        storageClass: <存储类>
-  backupCluster:
-    name: <源集群名称>
+        size: 20Gi
+        storageClass: sc-topolvm
+  timestamp: "2023-07-26T14:36:38+00:00"  # 恢复的时间点
 EOF
 ```
 

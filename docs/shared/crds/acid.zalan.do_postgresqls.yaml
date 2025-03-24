@@ -69,20 +69,24 @@ spec:
                 additionalVolumes:
                   description: AdditionalVolumes defines additional volumes for the pod
                   items:
-                    description: AdditionalVolume specs additional optional volumes for statefulset
+                    description: AdditionalVolume defines additional volumes that can be mounted to PostgreSQL pods
                     properties:
                       mountPath:
+                        description: Path where the volume will be mounted in the container
                         type: string
                       name:
+                        description: Name of the volume, must be unique within the pod
                         type: string
                       subPath:
+                        description: SubPath within the volume to mount (optional)
                         type: string
                       targetContainers:
+                        description: List of container names that should mount this volume
                         items:
                           type: string
                         type: array
                       volumeSource:
-                        description: Represents the source of a volume to mount. Only one of its members may be specified.
+                        description: Kubernetes VolumeSource defining the volume type and configuration
                         properties:
                           awsElasticBlockStore:
                             description: 'awsElasticBlockStore represents an AWS Disk resource that is attached to a kubelet''s host machine and then exposed to the pod. More info: https://kubernetes.io/docs/concepts/storage/volumes#awselasticblockstore'
@@ -1105,17 +1109,22 @@ spec:
                           type: object
                       type: object
                     retainDay:
+                      description: RetainDay specifies how many days to retain backup files before deletion
                       type: integer
                     schedule:
+                      description: Schedule defines the cron schedule for automated backups (e.g. "0 0 * * *" for daily at midnight)
                       type: string
                     storage:
                       description: storage defines the configuration for backup storage including the storage name, namespace, and bucket location.
                       properties:
                         bucket:
+                          description: S3 bucket name
                           type: string
                         name:
+                          description: Name of the storage configuration to use for backups
                           type: string
                         namespace:
+                          description: Namespace where the storage configuration is defined
                           type: string
                       required:
                         - bucket
@@ -1129,57 +1138,75 @@ spec:
                   description: Clone defines configuration for cloning from another cluster
                   properties:
                     cluster:
+                      description: ClusterName specifies the name of the source cluster to clone from
                       type: string
                     s3_access_key_id:
+                      description: S3AccessKeyId specifies the access key ID for S3 authentication
                       type: string
                     s3_endpoint:
+                      description: S3Endpoint specifies the S3-compatible storage endpoint
                       type: string
                     s3_force_path_style:
+                      description: S3ForcePathStyle enables path-style S3 URLs (bucket.s3.amazonaws.com)
                       type: boolean
                     s3_secret_access_key:
+                      description: S3SecretAccessKey specifies the secret access key for S3 authentication
                       type: string
                     s3_wal_path:
+                      description: S3WalPath specifies the S3 path containing WAL files for PITR cloning
                       type: string
                     timestamp:
+                      description: EndTimestamp specifies the point-in-time to clone up to (RFC3339 format)
                       type: string
                     uid:
+                      description: UID specifies the unique identifier of the source cluster
                       type: string
                   type: object
                 clusterReplication:
                   description: ClusterReplication defines cross-cluster replication
                   properties:
                     bootstrapSecret:
+                      description: BootstrapSecret contains credentials for initial replication setup
                       type: string
                     enabled:
+                      description: Enabled controls whether cross-cluster replication is active
                       type: boolean
                     isReplica:
+                      description: IsReplica indicates if this cluster should act as a replica
                       type: boolean
                     peerHost:
+                      description: PeerHost specifies the hostname or IP of the peer cluster
                       type: string
                     peerPort:
+                      description: PeerPort specifies the port number for connecting to the peer cluster
                       format: int32
                       type: integer
                     replSvcType:
-                      description: Service Type string describes ingress methods for a service
+                      description: ReplSvcType defines the Kubernetes Service type for replication traffic
                       type: string
                     syncMode:
+                      description: SyncMode enables synchronous replication between clusters
                       type: boolean
                   type: object
                 connectionPooler:
                   description: ConnectionPooler configuration for connection pooling
                   properties:
                     dockerImage:
+                      description: DockerImage specifies the container image to use for the connection pooler. If not specified, uses the default image configured in the operator.
                       type: string
                     maxDBConnections:
+                      description: MaxDBConnections defines the maximum number of database connections that the pooler will maintain to PostgreSQL. Defaults to 60 if not specified.
                       format: int32
                       type: integer
                     mode:
+                      description: Mode defines the connection pooling mode. Can be "session" or "transaction". In session mode, connections are held for the duration of a client session. In transaction mode, connections are returned to the pool after each transaction. Defaults to "transaction" if not specified.
                       type: string
                     numberOfInstances:
+                      description: NumberOfInstances specifies how many connection pooler instances to run. If not set, defaults to 1 for PgBouncer or 2 for Pgpool-II.
                       format: int32
                       type: integer
                     resources:
-                      description: Resources describes requests and limits for the cluster resouces.
+                      description: Resources defines CPU and memory requirements for the connection pooler containers. If not specified, uses operator defaults.
                       properties:
                         limits:
                           description: ResourceLimits defines the maximum resources allowed for containers
@@ -1207,8 +1234,10 @@ spec:
                           type: object
                       type: object
                     schema:
+                      description: Schema specifies the database schema where connection pooler will operate. Defaults to "pooler" if not specified.
                       type: string
                     user:
+                      description: User specifies the database user that the connection pooler will use. Defaults to "pooler" if not specified.
                       type: string
                   type: object
                 databases:
@@ -3120,11 +3149,14 @@ spec:
                     description: MaintenanceWindow describes the time window when the operator is allowed to do maintenance on a cluster.
                     properties:
                       endTime:
+                        description: EndTime defines the end of the maintenance window in HH:MM format
                         format: date-time
                         type: string
                       everyday:
+                        description: Everyday enables maintenance every day of the week
                         type: boolean
                       startTime:
+                        description: StartTime defines the beginning of the maintenance window in HH:MM format
                         format: date-time
                         type: string
                     type: object
@@ -3376,7 +3408,7 @@ spec:
                   description: PodPriorityClassName specifies the priority class for pods
                   type: string
                 postgresql:
-                  description: 'PostgreSQL version and configuration parameters including: - PostgreSQL major version - Configuration parameters (postgresql.conf) PostgreSQL version and configuration parameters'
+                  description: 'PostgreSQL version and configuration parameters including: - PostgreSQL major version (e.g. "14") - Configuration parameters (postgresql.conf) - Configuration parameters (postgresql.conf) PostgreSQL version and configuration parameters'
                   properties:
                     parameters:
                       additionalProperties:
@@ -3391,25 +3423,31 @@ spec:
                   type: object
                 preparedDatabases:
                   additionalProperties:
-                    description: PreparedDatabase describes elements to be bootstrapped
+                    description: PreparedDatabase describes elements to be bootstrapped when creating a new database. It allows pre-configuring schemas, roles, users and extensions for the database.
                     properties:
                       defaultUsers:
+                        description: DefaultUsers controls whether default database users should be created. When true, creates standard users with read/write permissions. Defaults to false if not specified.
                         type: boolean
                       extensions:
                         additionalProperties:
                           type: string
+                        description: 'Extensions defines PostgreSQL extensions to be installed in the database. Maps extension names to their required versions. Example: {"postgis": "3.1", "pg_partman": "4.5.1"}'
                         type: object
                       schemas:
                         additionalProperties:
                           description: PreparedSchema describes elements to be bootstrapped per schema
                           properties:
                             defaultRoles:
+                              description: DefaultRoles enables creation of default roles for the schema
                               type: boolean
                             defaultUsers:
+                              description: DefaultUsers enables creation of default users for the schema
                               type: boolean
                           type: object
+                        description: 'PreparedSchemas defines a map of schema names to their configuration. Each schema will be created with default roles and users as specified. Example: {"myschema": {DefaultRoles: true, DefaultUsers: true}}'
                         type: object
                       secretNamespace:
+                        description: SecretNamespace specifies the Kubernetes namespace where database credentials should be stored. If empty, uses the same namespace as the PostgreSQL cluster.
                         type: string
                     type: object
                   description: PreparedDatabases defines databases with pre-configured schemas and roles
@@ -3418,8 +3456,10 @@ spec:
                   description: RepairOption defines options for cluster repair
                   properties:
                     autoRecovery:
+                      description: AutoRecovery enables automatic recovery attempts for failed clusters
                       type: boolean
                     startTimeout:
+                      description: StartTimeout defines the maximum time (in seconds) to wait for cluster startup before recovery
                       format: int64
                       type: integer
                   type: object
@@ -3599,6 +3639,7 @@ spec:
                     description: Sidecar defines a container to be run in the same pod as the Postgres container.
                     properties:
                       env:
+                        description: Env defines environment variables to set in the sidecar container
                         items:
                           description: EnvVar represents an environment variable present in a Container.
                           properties:
@@ -3682,10 +3723,13 @@ spec:
                           type: object
                         type: array
                       image:
+                        description: DockerImage specifies the container image to use for the sidecar
                         type: string
                       name:
+                        description: Name specifies the unique name of the sidecar container within the pod
                         type: string
                       ports:
+                        description: Ports defines the network ports to expose from the sidecar container
                         items:
                           description: ContainerPort represents a network port in a single container.
                           properties:
@@ -3712,7 +3756,7 @@ spec:
                           type: object
                         type: array
                       resources:
-                        description: Resources describes requests and limits for the cluster resouces.
+                        description: Resources defines CPU and memory requirements for the sidecar container
                         properties:
                           limits:
                             description: ResourceLimits defines the maximum resources allowed for containers
@@ -3766,12 +3810,16 @@ spec:
                   description: StandbyCluster defines configuration for standby clusters
                   properties:
                     gs_wal_path:
+                      description: GSWalPath specifies the Google Cloud Storage path for WAL archiving (e.g. "gs://bucket/path")
                       type: string
                     s3_wal_path:
+                      description: S3WalPath specifies the S3 path for WAL archiving (e.g. "s3://bucket/path")
                       type: string
                     standby_host:
+                      description: StandbyHost specifies the hostname or IP address of the primary cluster
                       type: string
                     standby_port:
+                      description: StandbyPort specifies the port number of the primary cluster
                       type: string
                   type: object
                 streams:
@@ -3780,29 +3828,37 @@ spec:
                     description: Stream defines properties for creating FabricEventStream resources
                     properties:
                       applicationId:
+                        description: ApplicationId is the unique identifier for the application producing the event stream
                         type: string
                       batchSize:
+                        description: BatchSize controls how many events are batched together before being processed
                         format: int32
                         type: integer
                       database:
+                        description: Database specifies the PostgreSQL database where the event tables are located
                         type: string
                       filter:
                         additionalProperties:
                           type: string
+                        description: Filter specifies optional filtering conditions for the event stream
                         type: object
                       tables:
                         additionalProperties:
                           description: StreamTable defines properties of outbox tables for FabricEventStreams
                           properties:
                             eventType:
+                              description: EventType specifies the type of event being streamed from this table
                               type: string
                             idColumn:
+                              description: IdColumn specifies the column name containing the unique event identifier. If not specified, defaults to the primary key column.
                               type: string
                             payloadColumn:
+                              description: PayloadColumn specifies the column name containing the event payload data. If not specified, the entire row is treated as the payload.
                               type: string
                           required:
                             - eventType
                           type: object
+                        description: Tables defines the mapping of table names to their stream configurations
                         type: object
                     required:
                       - applicationId
@@ -3818,14 +3874,19 @@ spec:
                   description: TLS defines TLS configuration for the cluster
                   properties:
                     caFile:
+                      description: CAFile specifies the path to the CA certificate file for client verification
                       type: string
                     caSecretName:
+                      description: CASecretName specifies the Kubernetes secret containing the CA certificate
                       type: string
                     certificateFile:
+                      description: CertificateFile specifies the path to the server certificate file
                       type: string
                     privateKeyFile:
+                      description: PrivateKeyFile specifies the path to the server private key file
                       type: string
                     secretName:
+                      description: SecretName specifies the Kubernetes secret containing TLS certificates
                       type: string
                   type: object
                 tolerations:
@@ -3855,6 +3916,7 @@ spec:
                   description: UpgradeOption defines upgrade options
                   properties:
                     crVersion:
+                      description: CRVersion specifies the target custom resource version for the upgrade
                       type: string
                   type: object
                 useLoadBalancer:
@@ -3950,46 +4012,61 @@ spec:
               description: Status defines the observed state of the PostgreSQL cluster including current status, patroni state, and any error messages.
               properties:
                 PostgresClusterStatus:
+                  description: PostgresClusterStatus indicates the current operational state of the PostgreSQL cluster
                   type: string
                 UsersCustomizedPasswdStatus:
+                  description: UsersCustomizedPasswdStatus tracks the status of custom password management for database users
                   type: string
                 clusterReplicationRole:
+                  description: ClusterReplicationRole indicates the replication role (primary/replica) of this cluster
                   type: string
                 message:
+                  description: Message provides additional details about the cluster status or error conditions
                   type: string
                 patroniStatus:
                   additionalProperties:
                     description: PatroniStatus represents the status of a Patroni-managed PostgreSQL instance including its role, state, and replication status.
                     properties:
                       lastStateUpdateTime:
+                        description: Timestamp of the last state update
                         format: date-time
                         type: string
                       name:
+                        description: Name of the PostgreSQL instance (pod name)
                         type: string
                       replication:
-                        description: Replication defines the status of replication between PostgreSQL instances including connection state and synchronization information.
+                        description: Replication status including sync state and connection info
                         properties:
                           application_name:
+                            description: ApplicationName identifies the replication application in PostgreSQL logs
                             type: string
                           state:
+                            description: State indicates the current replication state (streaming, catching up, etc.)
                             type: string
                           sync_state:
+                            description: SyncState shows the synchronization status between primary and replica
                             type: string
                           username:
+                            description: UserName specifies the replication user name used for streaming replication
                             type: string
                         type: object
                       role:
+                        description: Role of the instance in the cluster (master, replica, etc.)
                         type: string
                       state:
+                        description: Current state of the instance (running, stopped, starting, etc.)
                         type: string
                     type: object
+                  description: PatroniStatus contains status information for each Patroni-managed PostgreSQL instance
                   type: object
                 upgradeStatus:
-                  description: UpgradeStatus tracks the current version state during cluster upgrades including both operator and custom resource versions.
+                  description: UpgradeStatus tracks version information for operator and custom resource upgrades
                   properties:
                     crVersion:
+                      description: CRVersion tracks the version of the custom resource specification
                       type: string
                     operatorVersion:
+                      description: OperatorVersion tracks the version of the operator that last processed this cluster
                       type: string
                   type: object
               type: object

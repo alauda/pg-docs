@@ -6,11 +6,13 @@ weight: 10
 
 ## 什么是 CRD
 
-CRD（Custom Resource Definition）是 Kubernetes 的一种扩展机制，允许用户定义自己的资源类型。PostgreSQL Operator 通过 CRD 来管理 PostgreSQL 集群的生命周期。
+CRD（Custom Resource Definition）是 Kubernetes 的一种扩展机制，允许用户定义自己的资源类型。PostgreSQL Operator 提供了多个 CRD 来管理 PostgreSQL 集群及其相关操作。
 
-## CRD 结构
+## 主要 CRD 类型
 
-PostgreSQL CRD 主要包含以下字段：
+### 1. PostgreSQL 集群 (postgresql)
+
+管理 PostgreSQL 集群的核心 CRD，包含集群配置、资源分配、备份等设置。
 
 ```yaml
 apiVersion: acid.zalan.do/v1
@@ -18,9 +20,12 @@ kind: postgresql
 metadata:
   name: pg-cluster
 spec:
-  teamId: my-team
+  teamId: ACID
   postgresql:
     version: "14"
+    parameters:  # PostgreSQL 配置参数
+      shared_buffers: "1GB"
+      work_mem: "64MB"
   numberOfInstances: 3
   resources:
     requests:
@@ -29,24 +34,90 @@ spec:
   volume:
     size: 50Gi
     storageClass: standard
+  backup:
+    schedule: "0 0 * * *"  # 每日备份
+    retainDay: 7           # 保留7天
+    storage:
+      bucket: "my-backups"
+      name: "backup-storage"
+      namespace: "default"
 ```
 
-| 字段 | 说明 |
-|------|------|
-| teamId | 团队标识符 |
-| postgresql.version | PostgreSQL 版本 |
-| numberOfInstances | 集群节点数量 |
-| resources | 资源请求和限制 |
-| volume | 存储配置 |
+### 2. PostgreSQL 备份 (postgresbackup)
+
+管理 PostgreSQL 集群的备份操作。
+
+```yaml
+apiVersion: middleware.alauda.io/v1
+kind: PostgresBackup
+metadata:
+  name: pg-backup
+spec:
+  cluster: pg-cluster  # 要备份的集群
+  executeNode: node-1   # 执行备份的节点
+status:
+  state: Succeeded      # 备份状态
+  backupName: backup-20230324
+  startTime: "2023-03-24T00:00:00Z"
+  finishTime: "2023-03-24T00:30:00Z"
+```
+
+### 3. PostgreSQL 恢复 (postgresrestore)
+
+管理 PostgreSQL 集群的恢复操作。
+
+```yaml
+apiVersion: middleware.alauda.io/v1
+kind: PostgresRestore
+metadata:
+  name: pg-restore
+spec:
+  backupCluster:
+    name: pg-cluster
+    storage:
+      bucket: "my-backups"
+      name: "backup-storage"
+      namespace: "default"
+  targetCluster: pg-new-cluster
+  timestamp: "2023-03-24T00:00:00Z"  # 恢复到指定时间点
+status:
+  state: InProgress
+  error: ""  # 错误信息
+```
+
+## 关键字段说明
+
+| CRD 类型 | 字段 | 说明 |
+|----------|------|------|
+| postgresql | teamId | 团队标识符 |
+|  | postgresql.version | PostgreSQL 版本 |
+|  | numberOfInstances | 集群节点数量 |
+|  | resources | 资源请求和限制 |
+|  | volume | 存储配置 |
+|  | backup | 备份配置 |
+| postgresbackup | cluster | 要备份的集群 |
+|  | executeNode | 执行备份的节点 |
+|  | status.state | 备份状态 |
+| postgresrestore | backupCluster | 源备份集群信息 |
+|  | targetCluster | 目标恢复集群 |
+|  | timestamp | 恢复时间点 |
 
 ## 使用场景
 
-- 创建新的 PostgreSQL 集群
-- 修改集群配置
-- 扩缩容集群
-- 管理集群生命周期
+- 创建和管理 PostgreSQL 集群
+- 配置自动备份和恢复
+- 监控集群状态和操作进度
+- 执行时间点恢复
+- 管理集群资源分配
 
-## 注意事项
-1. CRD 创建后不可修改部分字段
-2. 确保 spec 字段配置正确
-3. 合理设置资源限制
+## 最佳实践
+
+1. 为生产环境配置定期备份
+2. 合理设置资源限制和存储大小
+3. 使用命名规范管理 CRD 资源
+4. 监控关键状态字段（state, error）
+5. 测试备份恢复流程
+6. 使用版本控制管理 CRD 配置
+
+## 了解更多
+- [API文档](../apis/kubernetes_apis/postgres/index.mdx)
