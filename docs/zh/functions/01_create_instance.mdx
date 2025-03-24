@@ -27,12 +27,12 @@ Postgres Operator 支持以下架构：
 
 ### 创建单节点实例
 ```bash
-cat << EOF | kubectl -n default create -f -
+cat << EOF | kubectl create -f -
 apiVersion: acid.zalan.do/v1
 kind: postgresql
 metadata:
   name: pg-single
-  namespace: default
+  namespace: c1-midautons
 spec:
   ipFamilyPrefer: ""
   teamId: ACID
@@ -56,8 +56,8 @@ spec:
       cpu: "1"
       memory: 2Gi
   volume:
-    size: 10Gi
-    storageClass: default
+    size: 5Gi
+    storageClass: c1-topolvmsc
 EOF
 ```
 

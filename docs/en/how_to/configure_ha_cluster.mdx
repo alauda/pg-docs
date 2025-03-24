@@ -7,13 +7,15 @@ sourceSHA: 3d387753069c25b524b552547f8154602f94c7dfeb6ff1e46e32c9429ff6f410
 
 ## Overview
 
-This guide explains how to configure a highly available PostgreSQL cluster on Kubernetes, using Patroni for automated failover and cluster management.
+This guide explains how to configure a highly available PostgreSQL cluster on Kubernetes, using Patroni for automated failover and cluster management, with support for synchronous replication, connection pooling, monitoring and more.
 
 ## Use Cases
 
 - Database deployment in production environments
 - Databases for critical business systems
 - Applications requiring high availability assurance
+- Systems needing automatic failover and recovery
+- Workloads requiring read/write separation and load balancing
 
 ## Prerequisites
 
@@ -21,8 +23,12 @@ This guide explains how to configure a highly available PostgreSQL cluster on Ku
 2. A storage class supporting dynamic provisioning must be configured
 3. Permissions to create CRD resources must be granted
 4. Ensure the Kubernetes cluster has sufficient resources (at least 3 available nodes)
+5. Backup storage must be configured (S3 or compatible storage)
 
 ## Steps
+
+<Tabs>
+<Tab label="Command Line">
 
 ### 1. Create a High Availability Cluster
 
@@ -33,10 +39,20 @@ kind: postgresql
 metadata:
   name: pg-ha-cluster
 spec:
-  teamId: my-team
+  teamId: ACID
+  enableExporter: true
+  enablePgpool2: false
+  spiloPrivileged: false
+  spiloRunAsGroup: 103
+  spiloRunAsUser: 101
+  spiloAllowPrivilegeEscalation: false
+  enableReadinessProbe: true
   numberOfInstances: 3
   postgresql:
     version: "14"
+    parameters:
+      shared_buffers: "1GB"
+      work_mem: "64MB"
   resources:
     requests:
       cpu: "1"
@@ -47,11 +63,24 @@ spec:
   volume:
     size: 50Gi
     storageClass: ssd
+    iops: 3000
+    throughput: 125
   patroni:
     ttl: 30
     loop_wait: 10
     retry_timeout: 10
     maximum_lag_on_failover: 1048576
+    synchronous_mode: true
+    synchronous_node_count: 2
+    pg_hba:
+      - host all all 0.0.0.0/0 md5
+  backup:
+    schedule: "0 0 * * *"
+    retainDay: 7
+    storage:
+      bucket: "my-backups"
+      name: "backup-storage"
+      namespace: "default"
 EOF
 ```
 
@@ -71,6 +100,19 @@ status:
   - pg-ha-cluster-1
   - pg-ha-cluster-2
   master: pg-ha-cluster-0
+  patroniStatus:
+    pg-ha-cluster-0:
+      role: leader
+      state: running
+      replication:
+        state: streaming
+        sync_state: sync
+    pg-ha-cluster-1:
+      role: replica
+      state: running
+      replication:
+        state: streaming
+        sync_state: async
 ```
 
 ### 3. Configure Connection Pooler (Optional)
@@ -82,6 +124,13 @@ spec:
   connectionPooler:
     numberOfInstances: 2
     mode: "transaction"
+    resources:
+      requests:
+        cpu: "500m"
+        memory: "512Mi"
+      limits:
+        cpu: "1"
+        memory: "1Gi"
 '
 ```
 
@@ -90,42 +139,144 @@ spec:
 ```bash
 kubectl patch postgresql pg-ha-cluster --type='merge' -p '
 spec:
-  enableLogicalBackup: true
-  enableConnectionPooler: true
-  enableReplicaConnectionPooler: true
+  enableExporter: true
+  exporter:
+    resources:
+      requests:
+        cpu: "200m"
+        memory: "256Mi"
+      limits:
+        cpu: "500m"
+        memory: "512Mi"
 '
 ```
 
-## Parameter Description
+</Tab>
 
-| Parameter                     | Default Value | Description                    |
-|------------------------------|---------------|--------------------------------|
-| numberOfInstances             | 3             | Number of cluster nodes (odd number recommended) |
-| patroni.ttl                  | 30            | Lease time for master node (seconds) |
-| patroni.loop_wait             | 10            | Interval for status checks (seconds) |
-| patroni.retry_timeout         | 10            | Timeout for retries (seconds)  |
-| maximum_lag_on_failover      | 1048576       | Maximum allowed replication lag (bytes) |
+<Tab label="UI">
+
+1. In the left navigation bar, click **PostgreSQL**
+2. Select the target namespace
+3. Click **Create PostgreSQL Instance**
+4. Configure the following parameters:
+
+<table border="">
+  <tr>
+    <th>Configuration Item</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td>Instance Name</td>
+    <td>Unique identifier for the cluster</td>
+  </tr>
+  <tr>
+    <td>PostgreSQL Version</td>
+    <td>Select supported PostgreSQL version</td>
+  </tr>
+  <tr>
+    <td>Replica Count</td>
+    <td>Set number of cluster nodes (recommend 3 or more)</td>
+  </tr>
+  <tr>
+    <td>Specifications (Container Limits)</td>
+    <td>Set CPU and memory resource limits</td>
+  </tr>
+  <tr>
+    <td>Storage Class</td>
+    <td>Select storage class supporting high IOPS</td>
+  </tr>
+  <tr>
+    <td>Storage Quota</td>
+    <td>Set storage size (recommend 50GB or more)</td>
+  </tr>
+  <tr>
+    <td>High Availability Configuration</td>
+    <td>
+      - Enable synchronous replication
+      - Set number of synchronous nodes
+      - Configure failover parameters
+    </td>
+  </tr>
+  <tr>
+    <td>Backup Configuration</td>
+    <td>
+      - Set backup schedule
+      - Configure backup storage
+      - Set retention days
+    </td>
+  </tr>
+</table>
+
+5. Click **Create** and wait for instance status to become **Running**
+6. View cluster status and node information on the instance details page
+
+</Tab>
+</Tabs>
+
+## Key Parameters
+
+### Cluster Configuration
+| Parameter | Default Value | Description |
+|------|--------|------|
+| numberOfInstances | 3 | Number of cluster nodes (recommend odd number) |
+| postgresql.version | "14" | PostgreSQL major version |
+| postgresql.parameters | {} | PostgreSQL configuration parameters |
+| resources | - | Resource requests and limits |
+| volume.size | - | Storage volume size |
+| volume.storageClass | - | Storage class name |
+| volume.iops | - | IOPS (only for storage classes supporting IOPS) |
+
+### Patroni Configuration
+| Parameter | Default Value | Description |
+|------|--------|------|
+| patroni.ttl | 30 | Master node lease time (seconds) |
+| patroni.loop_wait | 10 | Status check interval (seconds) |
+| patroni.retry_timeout | 10 | Retry timeout (seconds) |
+| patroni.maximum_lag_on_failover | 1048576 | Maximum allowed replication lag (bytes) |
+| patroni.synchronous_mode | false | Whether to enable synchronous replication |
+| patroni.synchronous_node_count | 1 | Number of synchronous replication nodes |
+| patroni.pg_hba | [] | Custom pg_hba configuration |
+
+### Backup Configuration
+| Parameter | Default Value | Description |
+|------|--------|------|
+| backup.schedule | - | Backup schedule (cron format) |
+| backup.retainDay | 7 | Backup retention days |
+| backup.storage.bucket | - | Backup storage bucket name |
+| backup.storage.name | - | Storage configuration name |
+| backup.storage.namespace | - | Storage configuration namespace |
 
 ## Result Validation
-
-1. Check if the cluster status is Running
-2. Confirm that all Pods are operating normally
-3. Test failover:
+1. Verify cluster status is Running
+2. Confirm all Pods are running normally
+3. Check Patroni status:
+   ```bash
+   kubectl exec pg-ha-cluster-0 -- patronictl list
+   ```
+4. Test failover:
    ```bash
    kubectl delete pod pg-ha-cluster-0
    ```
-   Observe the leader election process
+   Observe new leader election process
+5. Verify synchronous replication status:
+   ```bash
+   kubectl exec pg-ha-cluster-0 -- psql -c "SELECT * FROM pg_stat_replication;"
+   ```
 
-## Notes
-
-1. It is recommended to use SSD storage in production environments
-2. Configure resource limits appropriately
-3. Regularly test failover scenarios
-4. Set up monitoring alerts
-5. Ensure data backups are in place
+## Best Practices
+1. For production environments, use SSD storage with appropriate IOPS configuration
+2. Configure resource limits with 20-30% buffer
+3. Regularly test failover and recovery procedures
+4. Configure monitoring alerts for:
+   - Primary-replica lag
+   - Connection counts
+   - Disk usage
+   - CPU/memory usage
+5. Enable scheduled backups and test restore procedures
+6. When using synchronous replication, configure at least 2 synchronous replicas
+7. Perform regular performance tuning and parameter optimization
 
 ## Learn More
-
 - [High Availability Architecture](../concepts/ha.mdx)
 - [Monitoring Configuration](../functions/35_monitor.mdx)
 - [Backup and Restore](../functions/15_back_restore.mdx)
