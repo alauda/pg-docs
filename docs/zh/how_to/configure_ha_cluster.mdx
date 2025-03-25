@@ -23,11 +23,11 @@ weight: 20
 
 ## 操作步骤
 <Tabs>
-<Tab label="命令行操作">
+<Tab label="CLI">
 
 ### 1. 创建高可用集群
 ```bash
-cat <<EOF | kubectl create -n default -f -
+cat <<EOF | kubectl create -n $NAMESPACE -f -
 apiVersion: acid.zalan.do/v1
 kind: postgresql
 metadata:
@@ -80,7 +80,7 @@ EOF
 
 ### 2. 验证集群状态
 ```bash
-kubectl get postgresql pg-ha-cluster -o yaml
+kubectl -n $NAMESPACE get postgresql pg-ha-cluster -o yaml
 ```
 
 输出示例：
@@ -143,7 +143,7 @@ spec:
 
 </Tab>
 
-<Tab label="界面操作">
+<Tab label="Web Console">
 
 1. 在左侧导航栏中，单击 **PostgreSQL**
 2. 选择目标命名空间
