@@ -3,11 +3,15 @@ weight: 1
 sourceSHA: 0cedde752e61fb3a6d6dbdc92f59d504a97e23765fdd7d96ab4846f5f7e74b39
 ---
 
-# Create an Instance
+# Create an Instance {#create-instance}
 
 ## Feature Overview
 
-This feature allows users to create and manage PostgreSQL database instances within a Kubernetes cluster. Users can quickly deploy PostgreSQL instances that meet their needs by configuring resource specifications, parameter templates, account information, and more.
+This feature allows users to create and manage PostgreSQL database instances within a Kubernetes cluster. Users can quickly deploy database instances that meet their needs by configuring:
+
+- Resource specifications
+- Account information
+- Storage requirements
 
 ## Prerequisites
 
@@ -21,23 +25,27 @@ Before creating a PostgreSQL instance, please ensure that:
 
 Currently, PostgreSQL versions 11,12,14 are supported, with the recommendation to use the latest stable version.
 
-## Architecture Choices
+## Architecture Choices {#architecture-choices}
 
 Postgres Operator supports the following architectures:
 
-- **Single Node**: Suitable for development and testing environments.
-- **Master-Slave Replication**: Recommended architecture for production environments, supporting automatic failover.
+- **Single Node**: Suitable for development and testing environments
+- **Primary-Replica Replication**: Recommended for production environments with:
+  - Automatic failover
+  - High availability
+  - Data redundancy
 
 ## Operational Steps
 
 <Tabs>
-  <Tab label="Command Line Operations">
+  <Tab label="CLI">
     ### Create a Single Node Instance
 
-    ```bash
+    ```yaml
+    # Example minimal HA cluster configuration
     cat << EOF | kubectl create -f -
     apiVersion: acid.zalan.do/v1
-    kind: postgresql
+    kind: postgresql  # Custom resource definition for PostgreSQL clusters
     metadata:
       name: pg-single
       namespace: c1-midautons
@@ -69,10 +77,10 @@ Postgres Operator supports the following architectures:
     EOF
     ```
 
-    ### Create a Master-Slave Replication Cluster
+    ### Create a High Availability Cluster
 
     ```bash
-    cat << EOF | kubectl -n default create -f -
+    cat << EOF | kubectl -n $NAMESPACE create -f -
     apiVersion: acid.zalan.do/v1
     kind: postgresql
     metadata:
@@ -113,28 +121,30 @@ Postgres Operator supports the following architectures:
     After creation, you can check the instance status using the following command:
 
     ```bash
-    kubectl -n default get postgresql
+    kubectl -n $NAMESPACE get postgresql
     ```
 
-    Output field description:
+    Expected output:
 
-    | Field   | Description          |
-    | ------- | ------------------- |
-    | NAME    | Instance Name       |
-    | TEAM    | Associated Team     |
-    | VERSION | PostgreSQL Version   |
-    | PODS    | Number of Running Pods   |
-    | VOLUME  | Volume Size         |
-    | CPU     | CPU Resources       |
-    | MEMORY  | Memory Resources     |
-    | STATUS  | Instance Status      |
-    | AGE     | Creation Time       |
+    ```bash
+    NAME                            AGE
+    pg-ha                           21h
+    ```
+
+    Output fields:
+    
+    | Field   | Description                     |
+    | ------- | ------------------------------ |
+    | NAME    | Instance name                  |
+    | AGE     | Time since creation            |
   </Tab>
 
-  <Tab label="Interface Operations">
+  <Tab label="Web Console">
+  
     1. In the left navigation bar, click **PostgreSQL**.
     2. Select the target namespace.
     3. Click **Create PostgreSQL Instance**.
+    ![PostgreSQL Instance Creation Interface](./assets/create_postgres_ui.png "PostgreSQL Instance Creation Interface")
     4. Configure the following parameters:
 
     <table>
@@ -178,9 +188,14 @@ Postgres Operator supports the following architectures:
   </Tab>
 </Tabs>
 
-## Notes
+> **Note**
+> 
+> 1. For production environments, use the [primary-replica architecture](#architecture-choices)
+> 2. Verify your storage class supports dynamic provisioning before deployment
+> 3. Configure appropriate [resource limits](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
+> 4. Implement regular backup procedures for critical data
 
-1. It is recommended to use a master-slave replication architecture in production environments.
-2. Ensure the storage class supports dynamic provisioning.
-3. Configure resource limits appropriately.
-4. Regularly back up critical data.
+> **Warning**
+> 
+> - Improper resource limits may lead to performance issues or pod evictions
+> - Without backups, data loss may occur during failures

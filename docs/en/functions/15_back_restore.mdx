@@ -12,33 +12,35 @@ Provides storage-based physical backup and restore capabilities to ensure data s
 ## Operating Steps
 
 <Tabs>
-  <Tab label="Command Line Operations">
+  <Tab label="CLI">
     ### Configure Backup Storage
 
     ```bash
-    kubectl patch postgresql <instance-name> -n <namespace> --type='merge' -p '
+    # Example: Configure backup storage for instance 'my-pg-instance'
+    kubectl patch postgresql my-pg-instance -n my-namespace --type='merge' -p '
     spec:
       backup:
         retainDay: 7
         storage:
-          name: <storage-config-name>
-          bucket: <bucket-name>
-          namespace: <storage-config-namespace>
+          name: my-s3-config
+          bucket: my-backup-bucket
+          namespace: storage-namespace
     '
     ```
 
     ### Create Backup
 
     ```bash
+    # Example: Create a backup named 'my-backup' for cluster 'my-pg-cluster'
     cat <<EOF | kubectl create -f -
     apiVersion: middleware.alauda.io/v1
     kind: PostgresBackup
     metadata:
-      name: <backup-name>
-      namespace: <namespace>
+      name: my-backup
+      namespace: my-namespace
     spec:
-      cluster: <instance-name>  # Replace with your PostgreSQL cluster name
-      executeNode: <pod-name>  # Optional: Specify the pod to execute the backup
+      cluster: my-pg-cluster
+      executeNode: my-pg-cluster-0  # Optional: Specify the pod to execute the backup
     EOF
     ```
 
@@ -93,14 +95,16 @@ Provides storage-based physical backup and restore capabilities to ensure data s
     ```
   </Tab>
 
-  <Tab label="Graphical Interface Operations">
+  <Tab label="Web Console">
     1. Click **PostgreSQL** in the left navigation bar
     2. Select the target namespace
     3. Choose the target instance from the instance list
     4. Click the **Backup and Restore** tab
 
     ### Configure Backup Storage
-
+    
+    ![UI Steps for Backup and Restore](./assets/backup_restore_ui_step1.png)
+    
     1. Click the **Configure Storage** button
     2. Fill in the storage configuration details:
        - Storage Configuration Name
@@ -110,30 +114,47 @@ Provides storage-based physical backup and restore capabilities to ensure data s
     3. Click **Save**
 
     ### Create Backup
+    
+    ![UI Steps for Backup and Restore](./assets/backup_restore_ui_step2.png)
 
     1. Click the **Create Backup** button
-    2. Enter the backup name
-    3. Click **OK**
+    2. A popup will appear with:
+       - Instance Name (pre-filled, e.g., pg-ha)
+       - Type: Basic Backup (Full Backup)
+    3. Click **Create** to start the backup or **Cancel** to abort
 
-    ### View Backup Status
-
-    1. Select the target backup from the backup list
-    2. Check the backup status information:
-       - Backup Time
-       - Backup Size
-       - Backup Status
-       - Execution Node
+    After backup completion, the backup will appear in the list with:
+    - ID: pg-ha-2025-03-25-092331
+    - Backup start time/end time: From 2025-03-25 17:23:32 To 2025-03-25 17:23:33
+    - Status: Backed up
 
     ### Restore Database
+    
+    ![UI Steps for Backup and Restore](./assets/backup_restore_ui_step3.png)
 
     1. Click the **Restore Database** button
-    2. Select the backup to be restored
-    3. Configure the new instance parameters:
-       - Instance Name
-       - Number of Replicas
-       - Resource Configuration
-       - Storage Configuration
-    4. Click **OK** to start the restore process
+    2. The Restore Configuration page will load with:
+       - Original instance name (pre-filled, e.g., pg-ha)
+       - Recovery Instance: Restore to a new instance (Recommended)
+       - Restore Method: Restore from Point in time
+       - Recoverable time range (e.g., From 2025-03-25 17:23:34 To 2025-03-25 17:34:48)
+       - Restore Time Point (selectable)
+    3. Click **Next** to proceed
+
+    4. On the Basics configuration page:
+       - Enter Name (must start with a letter, end with letter/number, lowercase alphanumeric and "-" only, max 30 chars)
+       - Enter Display Name
+       - Select Deploy Location
+       - Choose PostgreSQL Version (e.g., 11, 12, 14)
+       - Set Number of Replicas (e.g., 3)
+       - Configure Resource Requirements:
+         - CPU (e.g., 1 Core)
+         - Memory (e.g., 2 Gi)
+       - Select StorageClass (e.g., c1-topolvmsc)
+       - Set Storage Resource Quota (e.g., 50 Gi)
+       - Configure Scheduling options
+    5. Click **Restore** to start the process
+    6. You will be redirected to the new instance's details page
   </Tab>
 </Tabs>
 
@@ -162,3 +183,6 @@ Descriptions of backup status fields:
 3. Backups will be automatically deleted after the retention period expires.
 4. Do not perform write operations on the source cluster during the restore process.
 5. Ensure that the storage class of the target cluster is compatible with that of the source cluster.
+6. Verify sufficient storage space is available before initiating backups.
+7. Test restore procedures regularly to ensure backup validity.
+8. Consider enabling backup encryption for sensitive data.
