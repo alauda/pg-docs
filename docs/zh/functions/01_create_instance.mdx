@@ -2,10 +2,14 @@
 weight: 1
 ---
 
-# 创建实例
+# 创建实例 {#create-instance}
 
 ## 功能简介
-本功能用于在 Kubernetes 集群中创建和管理 PostgreSQL 数据库实例。用户可以通过配置资源规格、参数模板、账户信息等快速部署符合需求的 PostgreSQL 实例。
+本功能用于在 Kubernetes 集群中创建和管理 PostgreSQL 数据库实例。用户可以通过配置以下内容快速部署符合需求的数据库实例：
+
+- 资源规格
+- 账户信息
+- 存储需求
 
 ## 前提条件
 在创建 PostgreSQL 实例之前，请确保：
@@ -16,20 +20,25 @@ weight: 1
 ## 版本支持
 当前支持 PostgreSQL 11,12,14 版本，建议使用最新稳定版本。
 
-## 架构选择
+## 架构选择 {#architecture-choices}
 Postgres Operator 支持以下架构：
+
 - **单节点**：适用于开发测试环境
-- **主从复制**：生产环境推荐架构，支持自动故障转移
+- **主从复制**：生产环境推荐架构，支持：
+  - 自动故障转移
+  - 高可用性
+  - 数据冗余
 
 ## 操作步骤
 <Tabs>
-<Tab label="命令行操作">
+<Tab label="CLI">
 
 ### 创建单节点实例
-```bash
+```yaml
+# 最小化 HA 集群配置示例
 cat << EOF | kubectl create -f -
 apiVersion: acid.zalan.do/v1
-kind: postgresql
+kind: postgresql  # PostgreSQL 集群的自定义资源定义
 metadata:
   name: pg-single
   namespace: c1-midautons
@@ -61,9 +70,9 @@ spec:
 EOF
 ```
 
-### 创建主从复制集群
+### 创建高可用集群
 ```bash
-cat << EOF | kubectl -n default create -f -
+cat << EOF | kubectl -n $NAMESPACE create -f -
 apiVersion: acid.zalan.do/v1
 kind: postgresql
 metadata:
@@ -103,25 +112,24 @@ EOF
 
 创建后可通过以下命令查看实例状态：
 ```bash
-kubectl -n default get postgresql
+kubectl -n $NAMESPACE get postgresql
+```
+
+预期输出：
+```bash
+NAME                            AGE
+pg-ha                           21h
 ```
 
 输出字段说明：
-| 字段 | 说明 |
-|------|------|
-| NAME | 实例名称 |
-| TEAM | 所属团队 |
-| VERSION | PostgreSQL 版本 |
-| PODS | 运行中的 Pod 数量 |
-| VOLUME | 存储卷大小 |
-| CPU | CPU 资源 |
-| MEMORY | 内存资源 |
-| STATUS | 实例状态 |
-| AGE | 创建时间 |
+| 字段   | 说明                     |
+| ------- | ------------------------------ |
+| NAME    | 实例名称                  |
+| AGE     | 创建时间            |
 
 </Tab>
 
-<Tab label="界面操作">
+<Tab label="Web Console">
 
 1. 在左侧导航栏中，单击 **PostgreSQL**
 2. 选择目标命名空间
@@ -164,8 +172,14 @@ kubectl -n default get postgresql
 </Tab>
 </Tabs>
 
-## 注意事项
-1. 生产环境建议使用主从复制架构
-2. 确保存储类支持动态供给
-3. 合理配置资源限制
-4. 定期备份重要数据
+> **注意**
+> 
+> 1. 生产环境建议使用[主从复制架构](#architecture-choices)
+> 2. 部署前请确保存储类支持动态供给
+> 3. 合理配置[资源限制](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
+> 4. 对重要数据实施定期备份
+
+> **警告**
+> 
+> - 不合理的资源限制可能导致性能问题或 Pod 被驱逐
+> - 没有备份的情况下，故障时可能导致数据丢失

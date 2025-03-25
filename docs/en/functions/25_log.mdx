@@ -16,39 +16,36 @@ If the interface indicates no data, please deploy the **Log Collection Component
 ## Operation Steps
 
 <Tabs>
-  <Tab label="Command Line Operations">
+  <Tab label="CLI">
     ### View PostgreSQL Logs
 
     ```bash
-    # View the primary node logs
-    kubectl -n <namespace> logs <instance-name>-0 -c postgres
+    # Example: View primary node logs for instance 'my-pg-instance'
+    kubectl -n my-namespace logs my-pg-instance-0 -c postgres
 
-    # View the replica node logs
-    kubectl -n <namespace> logs <instance-name>-1 -c postgres
+    # Example: View replica node logs
+    kubectl -n my-namespace logs my-pg-instance-1 -c postgres
     ```
 
-    ### View Slow Query Logs
+    ### View PostgreSQL Logs
 
     ```bash
-    kubectl -n <namespace> exec -it <instance-name>-0 -c postgres -- \
-      cat /var/log/postgresql/slow.log
-    ```
+    # Example: View primary node logs for instance 'my-pg-instance'
+    kubectl -n my-namespace logs my-pg-instance-0 -c postgres
 
-    ### View Audit Logs
-
-    ```bash
-    kubectl -n <namespace> exec -it <instance-name>-0 -c postgres -- \
-      cat /var/log/postgresql/audit.log
+    # Example: View replica node logs
+    kubectl -n my-namespace logs my-pg-instance-1 -c postgres
     ```
 
     ### Export Logs to File
 
     ```bash
-    kubectl -n <namespace> logs <instance-name>-0 -c postgres > postgres.log
+    # Example: Export logs to file
+    kubectl -n my-namespace logs my-pg-instance-0 -c postgres > postgres.log
     ```
   </Tab>
 
-  <Tab label="GUI Operations">
+  <Tab label="Web Console">
     1. Click **PostgreSQL** in the left navigation bar.
     2. Click on ***namespace name***.
     3. Click on ***instance name***.
@@ -64,12 +61,18 @@ If the interface indicates no data, please deploy the **Log Collection Component
 
 | Log Type          | Description                               |
 | ----------------- | ----------------------------------------- |
-| PostgreSQL Log    | Contains information on errors, warnings, etc. during database runtime |
-| Slow Query Log    | Records SQL queries that exceed the threshold execution time  |
-| Audit Log         | Records access and operation logs for the database |
+| PostgreSQL Log    | Contains information on errors, warnings, and other runtime messages |
 
 ## Notes
 
 1. Log files are stored by default in the /var/log/postgresql directory inside the container.
-2. Log rotation policies can be adjusted in the PostgreSQL configuration.
-3. It is recommended to enable slow query logs and audit logs in production environments.
+2. Log rotation policies can be adjusted in the PostgreSQL configuration:
+   - log_rotation_age: Maximum lifetime of an individual log file
+   - log_rotation_size: Maximum size of an individual log file
+3. Log levels can be configured using the log_min_messages parameter:
+   - DEBUG5 through DEBUG1: Detailed debugging information
+   - INFO: Informational messages
+   - NOTICE: Important but non-error conditions
+   - WARNING: Warnings
+   - ERROR: Errors
+5. Ensure sufficient disk space is allocated for log storage.
