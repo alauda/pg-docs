@@ -3,57 +3,72 @@ weight: 2
 sourceSHA: a2d251859a478ce3a6bd067583098320d07b4733831c2e70a850b6f6db75bb66
 ---
 
-# Deleting an Instance
+# Deleting a PostgreSQL Instance
 
-Deleting a PostgreSQL instance will remove the CR resources created and the StatefulSet, ConfigMap, Secret, PersistentVolumeClaim, and other resources created by the Postgres Operator based on the CR resources.
+:::warning
+**Important Considerations Before Deletion**
+- This operation is **irreversible** - deleted instances cannot be recovered
+- Ensure you have [valid backups](../functions/15_back_restore.mdx) if you might need the data later
+- Verify no applications are currently using this database instance
+- Cluster deletion will remove all replicas and associated resources
+:::
+
+Deleting a PostgreSQL instance will remove:
+- The Custom Resource (CR) 
+- StatefulSet and Pods
+- ConfigMaps and Secrets  
+- PersistentVolumeClaims (PVCs)
+- Monitoring and logging resources
 
 ## Steps to Operate
 
 <Tabs>
-  <Tab label="Command Line Operations">
-    If the instance does not have persistence enabled, or if you want to keep the instance's persistent data, execute the following command to delete the instance:
+  <Tab label="CLI">
+    To delete a PostgreSQL instance (including all associated PVCs), execute:
 
     ```bash
-    # Directly delete the PostgreSQL instance
-    kubectl -n default delete postgresql <instance-name>
+    kubectl -n $NAMESPACE delete postgresql <instance-name>
     ```
 
-    If you wish to delete the persistent storage along with the instance, perform the following commands:
-
+    Example output:
     ```bash
-    # Add finalizer to delete PVC
-    kubectl -n default patch postgresql <instance-name> --type='merge' -p '{"metadata": {"finalizers": ["delete-pvc"]}}'
-
-    # Delete the PostgreSQL instance and its persistent storage
-    kubectl -n default delete postgresql <instance-name>
+    postgresql.acid.zalan.do "example-postgres" deleted
     ```
 
-    > `delete-pvc` is a built-in keyword in the Postgres Operator, used to instruct the Operator to delete the persistent volume storage while deleting the instance.
-
-    After deletion, you can confirm the instance status with the following command:
+    After deletion, you can confirm the instance status with:
 
     ```bash
-    kubectl -n default get postgresql
+    kubectl -n $NAMESPACE get postgresql
     ```
   </Tab>
 
-  <Tab label="GUI Operations">
-    1. Click **PostgreSQL** in the left navigation bar.
+  <Tab label="Web Console">
+
+    1. Navigate to **PostgreSQL** in the left menu
     2. Select the target namespace.
     3. Choose the instance you wish to delete from the instance list.
     4. On the instance details page, click the **Actions** button in the upper-right corner.
+    
+    ![PostgreSQL Instance Deletion Interface](./assets/delete_postgres_ui.png "PostgreSQL deletion confirmation dialog")
+    
     5. Select the **Delete** option.
-    6. For instances with data persistence enabled:
-       - Check "Delete Persistent Volume Claim" to free up storage.
-       - Leave unchecked to retain data.
+    6. Confirm deletion of the instance and all its data.
     7. Enter the instance name in the confirmation box.
     8. Click **Delete**.
   </Tab>
 </Tabs>
 
-## Precautions
+## Post-Deletion Verification
 
-1. Please ensure that data backups are made before deleting the instance.
-2. The delete operation is irreversible; please proceed with caution.
-3. When deleting a cluster instance, all replica nodes will also be deleted.
-4. The delete operation will also remove associated monitoring, logging, and other resources.
+After deletion, verify all resources are removed:
+
+```bash
+kubectl -n default get postgresql  # Should not show deleted instance
+kubectl -n $NAMESPACE get pvc  # Verify PVCs were deleted
+```
+
+## Related Operations
+
+- [Creating Backups](../functions/15_back_restore.mdx)
+- [Monitoring Deletion Progress](../functions/35_monitor.mdx)
+- [Troubleshooting Deletion Issues](../trouble_shooting/cluster_creation_failure.mdx)

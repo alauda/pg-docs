@@ -28,12 +28,12 @@ This guide explains how to configure a highly available PostgreSQL cluster on Ku
 ## Steps
 
 <Tabs>
-<Tab label="Command Line">
+<Tab label="CLI">
 
 ### 1. Create a High Availability Cluster
 
 ```bash
-cat <<EOF | kubectl create -n default -f -
+cat <<EOF | kubectl create -n $NAMESPACE -f -
 apiVersion: acid.zalan.do/v1
 kind: postgresql
 metadata:
@@ -87,7 +87,7 @@ EOF
 ### 2. Verify Cluster Status
 
 ```bash
-kubectl get postgresql pg-ha-cluster -o yaml
+kubectl -n $NAMESPACE get postgresql pg-ha-cluster -o yaml
 ```
 
 Example Output:
@@ -153,7 +153,7 @@ spec:
 
 </Tab>
 
-<Tab label="UI">
+<Tab label="Web Console">
 
 1. In the left navigation bar, click **PostgreSQL**
 2. Select the target namespace

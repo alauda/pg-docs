@@ -21,7 +21,7 @@ When creating a PostgreSQL cluster, the cluster status remains in "Creating" for
 ### 1. Check Storage Configuration
 
 ```bash
-kubectl get pvc -n <namespace>
+kubectl get pvc -n $NAMESPACE
 kubectl describe pvc <pvc-name> -n <namespace>
 ```
 
@@ -34,7 +34,7 @@ Common issues:
 ### 2. Check Resource Quotas
 
 ```bash
-kubectl describe quota -n <namespace>
+kubectl describe quota -n $NAMESPACE
 ```
 
 Common issues:
@@ -46,7 +46,7 @@ Common issues:
 ### 3. Check Network Connection
 
 ```bash
-kubectl get endpoints -n <namespace>
+kubectl get endpoints -n $NAMESPACE
 ```
 
 Common issues:
@@ -58,7 +58,7 @@ Common issues:
 ### 4. Check Image Pulling
 
 ```bash
-kubectl describe pod <pod-name> -n <namespace>
+kubectl describe pod <pod-name> -n $NAMESPACE
 ```
 
 Common issues:
