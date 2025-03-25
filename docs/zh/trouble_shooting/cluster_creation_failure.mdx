@@ -17,8 +17,8 @@ weight: 10
 
 ### 1. 检查存储配置
 ```bash
-kubectl get pvc -n <命名空间>
-kubectl describe pvc <pvc名称> -n <命名空间>
+kubectl get pvc -n $NAMESPACE
+kubectl describe pvc <pvc名称> -n $NAMESPACE
 ```
 
 常见问题：
@@ -28,7 +28,7 @@ kubectl describe pvc <pvc名称> -n <命名空间>
 
 ### 2. 检查资源配额
 ```bash
-kubectl describe quota -n <命名空间>
+kubectl describe quota -n $NAMESPACE
 ```
 
 常见问题：
@@ -38,7 +38,7 @@ kubectl describe quota -n <命名空间>
 
 ### 3. 检查网络连接
 ```bash
-kubectl get endpoints -n <命名空间>
+kubectl get endpoints -n $NAMESPACE
 ```
 
 常见问题：
@@ -48,7 +48,7 @@ kubectl get endpoints -n <命名空间>
 
 ### 4. 检查镜像拉取
 ```bash
-kubectl describe pod <pod名称> -n <命名空间>
+kubectl describe pod <pod名称> -n $NAMESPACE
 ```
 
 常见问题：
