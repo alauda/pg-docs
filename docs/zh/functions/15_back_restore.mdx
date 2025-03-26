@@ -12,8 +12,6 @@ weight: 15
   <Tab label="CLI">
 
 ### 配置备份存储
-    
-![UI Steps for Backup and Restore](./assets/backup_restore_ui_step1.png)
 ```bash
 # 示例：为实例'my-pg-instance'配置备份存储
 kubectl patch postgresql my-pg-instance -n my-namespace --type='merge' -p '
@@ -109,8 +107,6 @@ EOF
 3. 点击**保存**
 
 ### 创建备份
-    
-![UI Steps for Backup and Restore](./assets/backup_restore_ui_step2.png)
 
 1. 点击**创建备份**按钮
 2. 弹出窗口将显示：
@@ -132,8 +128,6 @@ EOF
    - 执行节点
 
 ### 恢复数据库
-    
-![UI Steps for Backup and Restore](./assets/backup_restore_ui_step3.png)
 
 1. 点击**恢复数据库**按钮
 2. 恢复配置页面将加载，包含：
