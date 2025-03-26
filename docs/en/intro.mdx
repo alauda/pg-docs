@@ -5,31 +5,33 @@ sourceSHA: b0e370ce82eeaa40d6cbf85fecfa5aa52540f15b9c982a974028c909fe8ed6ab
 
 # Introduction
 
-## PostgreSQL Operator Introduction
+## What is PostgreSQL?
 
-Alauda Database for PostgreSQL is a Kubernetes-native PostgreSQL management solution built on the Zalando Postgres Operator. It implements the full lifecycle management of PostgreSQL clusters through Custom Resource Definitions (CRDs), supporting core operational capabilities such as automated failover, rolling upgrades, and backup recovery, enabling enterprises to run production-grade PostgreSQL databases effortlessly on Kubernetes.
+**PostgreSQL** is a powerful, open-source object-relational database system known for its reliability, feature robustness, and performance. It uses and extends the SQL language combined with many features that safely store and scale the most complicated data workloads. PostgreSQL runs on all major operating systems and has been ACID-compliant since 2001. It is widely used for various applications, from single machines to data warehouses to web services with many concurrent users.
 
-## Core Advantages
+## What is Alauda support for PostgreSQL?
 
-The core advantages of the PostgreSQL Operator are as follows:
+**Alauda support for PostgreSQL** is a Kubernetes-native management solution built upon the robust foundation of the Zalando Postgres Operator. It simplifies the deployment and full lifecycle management of PostgreSQL clusters within Kubernetes environments using Custom Resource Definitions (CRDs). This service automates complex operational tasks, including high availability setup, automated failover, scaling, rolling upgrades, and backup/recovery, allowing enterprises to run production-grade PostgreSQL databases effortlessly on Kubernetes.
 
-- **Automated Operations**\
-  Automatically handles complex operations such as cluster deployment, scaling, and backup recovery based on the Operator pattern, reducing manual intervention.
+## Core Features
 
-- **High Availability Architecture**\
-  Integrates Patroni to achieve automatic failover, ensuring continuous availability of database services.
+The key features provided by Alauda support for PostgreSQL include:
 
-- **Elastic Scalability**\
-  Supports real-time adjustments of resources like CPU, memory, and storage to respond to changing business needs.
+- **Automated Operations**: Leverages the Operator pattern to automatically manage cluster deployment, configuration changes, scaling, and backup/recovery tasks, significantly reducing manual effort and potential errors.
 
-- **Multi-Cloud Ready**\
-  Provides seamless integration with AWS S3, Google Cloud Storage, and Azure Blob Storage, enabling cross-cloud backup and recovery.
+- **High Availability (HA)**: Integrates Patroni for robust automated failover mechanisms, leader election, and cluster health monitoring, ensuring continuous database service availability.
 
-- **Security Compliance**\
-  Supports enterprise-grade security features such as TLS encrypted communication, RBAC access control, and regular password rotation.
+- **Elastic Scalability**: Allows dynamic horizontal scaling (adding/removing replicas) and vertical scaling (adjusting CPU/memory resources) to adapt to changing workloads without downtime.
 
-- **Observability**\
-  Built-in Prometheus metrics monitoring and log integration provide complete insights into database operations.
+- **Backup and Recovery**: Supports scheduled and manual backups to S3-compatible storage (AWS S3, Google Cloud Storage, Azure Blob Storage, MinIO), enabling reliable data protection and point-in-time recovery (PITR).
+
+- **Security Features**: Provides enterprise-grade security options, including TLS encryption for data in transit, Kubernetes RBAC integration for access control, and support for secure password management.
+
+- **Monitoring and Logging**: Offers built-in integration with Prometheus for metrics collection and provides easy access to PostgreSQL logs, enabling comprehensive observability into database performance and health.
+
+- **Connection Pooling**: Optionally integrates PgBouncer to manage database connections efficiently, improving performance for applications with high connection counts.
+
+- **Custom Configuration**: Allows extensive customization of PostgreSQL parameters, Patroni settings, and Kubernetes resource configurations (e.g., affinity, tolerations).
 
 ## Use Cases
 
@@ -64,5 +66,15 @@ The primary use cases for the PostgreSQL Operator include:
 - **Kubernetes Version**\
   Requires Kubernetes version 1.19 or above.
 
-- **Resource Requirements**\
-  Minimum configuration requirement is 2 CPU cores and 4GB of memory.
+- **Resource Requirements**: Minimum recommended configuration for a node is 2 CPU cores and 4GB of memory. Actual requirements depend on workload and cluster size.
+
+## Why Choose Alauda support for PostgreSQL?
+
+Alauda support for PostgreSQL streamlines the complexity of running and managing PostgreSQL on Kubernetes. By leveraging Kubernetes-native APIs and automation, it offers:
+
+- **Simplified Management**: Reduces the operational burden through declarative configuration and automated lifecycle management.
+- **Production-Ready**: Provides essential features like high availability, backup/recovery, and security needed for production workloads.
+- **Cloud-Native Integration**: Seamlessly integrates with Kubernetes ecosystem tools for monitoring, logging, and storage.
+- **Flexibility**: Supports various PostgreSQL versions and offers extensive configuration options to tailor deployments to specific needs.
+
+Whether you are migrating existing PostgreSQL databases to Kubernetes or deploying new cloud-native applications, Alauda support for PostgreSQL provides a reliable, scalable, and efficient solution.
