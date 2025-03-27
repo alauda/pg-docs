@@ -4,31 +4,41 @@ weight: 10
 
 # 介绍
 
-## PostgreSQL Operator 介绍
+## 什么是 PostgreSQL？
 
-Alauda Database for PostgreSQL 是基于 Zalando Postgres Operator 构建的 Kubernetes 原生 PostgreSQL 管理解决方案。它通过自定义资源定义（CRD）实现 PostgreSQL 集群的全生命周期管理，支持自动故障转移、滚动升级、备份恢复等核心运维能力，帮助企业在 Kubernetes 上轻松运行生产级 PostgreSQL 数据库。
+PostgreSQL 是一个功能强大的开源对象关系型数据库系统，以其可靠性、功能丰富性和性能著称。它扩展了 SQL 语言并包含许多特性，可以安全地存储和扩展最复杂的数据工作负载。PostgreSQL 可在所有主流操作系统上运行，自 2001 年以来一直符合 ACID 标准，被广泛应用于从单机到数据仓库再到高并发 Web 服务的各种场景。
 
-## 核心优势
+## 什么是 Alauda support for PostgreSQL？
 
-PostgreSQL Operator 的核心优势如下：
+Alauda support for PostgreSQL是基于 Zalando Postgres Operator 构建的 Kubernetes 原生管理解决方案。它通过自定义资源定义（CRD）简化了 PostgreSQL 集群在 Kubernetes 环境中的部署和全生命周期管理，自动化处理包括高可用设置、自动故障转移、扩缩容、滚动升级和备份恢复等复杂运维任务，让企业能够在 Kubernetes 上轻松运行生产级 PostgreSQL 数据库。
+
+## 核心特性
+
+Alauda support for PostgreSQL提供的关键特性包括：
 
 - **自动化运维**  
-  基于 Operator 模式自动处理集群部署、扩缩容、备份恢复等复杂操作，减少人工干预
+  利用 Operator 模式自动管理集群部署、配置变更、扩缩容和备份恢复任务，显著减少人工操作和潜在错误
 
-- **高可用架构**  
-  集成 Patroni 实现自动故障转移，确保数据库服务持续可用
+- **高可用性 (HA)**  
+  集成 Patroni 提供强大的自动故障转移机制、领导者选举和集群健康监控，确保持续的数据库服务可用性
 
 - **弹性扩展**  
-  支持在线调整 CPU、内存、存储等资源，实时响应业务需求变化
+  支持动态水平扩展（添加/移除副本）和垂直扩展（调整 CPU/内存资源），无需停机即可适应工作负载变化
 
-- **多云就绪**  
-  提供与 AWS S3、Google Cloud Storage、Azure Blob Storage 的无缝集成，实现跨云备份恢复
+- **备份与恢复**  
+  支持定时和手动备份到 S3 兼容存储（AWS S3、Google Cloud Storage、Azure Blob Storage、MinIO），提供可靠的数据保护和时间点恢复(PITR)
 
-- **安全合规**  
-  支持 TLS 加密通信、RBAC 权限控制、定期密码轮转等企业级安全特性
+- **安全特性**  
+  提供企业级安全选项，包括传输数据 TLS 加密、Kubernetes RBAC 访问控制集成和安全密码管理支持
 
-- **可观测性**  
-  内置 Prometheus 指标监控和日志集成，提供完整的数据库运行洞察
+- **监控与日志**  
+  内置 Prometheus 指标收集和 PostgreSQL 日志访问，全面掌握数据库性能和健康状况
+
+- **连接池**  
+  可选集成 PgBouncer 高效管理数据库连接，提升高连接数应用的性能
+
+- **自定义配置**  
+  支持广泛定制 PostgreSQL 参数、Patroni 设置和 Kubernetes 资源配置（如亲和性、容忍度）
 
 ## 应用场景
 
@@ -52,16 +62,34 @@ PostgreSQL Operator 的主要应用场景包括：
 ## 使用限制
 
 - **版本支持**  
-  当前主要支持 PostgreSQL 11,12,14 版本
+  当前支持 PostgreSQL 11,12,14 版本
 
 - **集群规模**  
   单个集群最多支持 15 个副本节点
 
 - **存储要求**  
-  必须使用支持动态供给的存储类（StorageClass）
+  必须使用支持动态供给的 StorageClass
 
 - **Kubernetes 版本**  
-  需要 Kubernetes 1.19 及以上版本
+  需要 Kubernetes 1.19 或更高版本
 
 - **资源要求**  
-  最小配置要求 2 CPU 核/4GB 内存
+  节点最低推荐配置为 2 CPU 核和 4GB 内存，实际需求取决于工作负载和集群规模
+
+## 为什么选择 Alauda support for PostgreSQL？
+
+Alauda support for PostgreSQL简化了在 Kubernetes 上运行和管理 PostgreSQL 的复杂性。通过利用 Kubernetes 原生 API 和自动化，它提供：
+
+- **简化管理**  
+  通过声明式配置和自动化生命周期管理降低运维负担
+
+- **生产就绪**  
+  提供高可用性、备份恢复和安全等生产环境所需的关键特性
+
+- **云原生集成**  
+  与 Kubernetes 生态监控、日志和存储工具无缝集成
+
+- **灵活性**  
+  支持多种 PostgreSQL 版本并提供丰富的配置选项以满足特定需求
+
+无论您是将现有 PostgreSQL 数据库迁移到 Kubernetes，还是部署新的云原生应用，Alauda 对 PostgreSQL 的支持都能提供一个可靠、可扩展且高效的解决方案。
