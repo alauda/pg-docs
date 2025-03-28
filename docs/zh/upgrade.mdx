@@ -3,8 +3,13 @@ weight: 16
 i18n:
   title:
     en: Upgrade
+sourceSHA: 987d84b340851961a9eec9fa11adf09b5d3813af04b8812dbef6e5e498541489
+title: Upgrade
 ---
 
 # 升级
 
-Application Services 插件升级无特殊处理流程，可参照 <ExternalSiteLink name="acp" href="appservice/unified-om/inst-upgrade-mgt/index" children="升级 Operator" /> 进行 Application Services 升级。
+灵雀云的 PostgreSQL 数据库服务将根据配置的升级策略执行升级：
+
+- **自动** : 自动升级将在检测到新组件版本时立即触发。
+- **手动** : 在启动升级过程之前，需要手动批准。
