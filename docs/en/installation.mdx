@@ -2,91 +2,91 @@
 weight: 15
 i18n:
   title:
-    en: Install
-sourceSHA: c55a845ab91d27019bf6c121320a74e077b3fe7e3ab3ffc4431cc8c2001d9fb3
-title: Install
+    en: Installation
+title: Installation
 ---
 
-# Deployment
+# Install
 
-## Install Alauda Application Services Essentials Plugin
+## Installing Alauda Application Services Essentials
 
-::: tip Optional Deployment
-The plugin is a foundational component for the Application Services graphical interface. It can be skipped if the graphical interface is not needed.
+::: tip Optional Installation
+The plugin serves as a foundational component for Alauda Application Services web console. It is not necessary to install it if the **web console** <span/> is not required.
 :::
 
 ### Prerequisites
 
-1. Download the Alauda Application Services Essentials installation package that matches your platform.
-2. Use the platform's application publishing capability to publish Alauda Application Services Essentials to the ***global cluster***.
+1. Download Alauda Application Services Essentials installation package that matches the platform.
+2. Use the platform's application publishing capability to publish Alauda Application Services Essentials to the `global` cluster.
 
 ### Procedure
 
 <Tabs>
   <Tab label="Web Console">
-    1. In the left navigation bar, go to **Application Store Management** > **Cluster Plugins**.
-    2. Select the **global** cluster.
-    3. Click the action button next to the **Alauda Application Services Essentials** plugin > **Deploy**.
+    1. In the left navigation bar, go to **Marketplace** > **Cluster Plugins**.
+    2. Select the `global` cluster.
+    3. Click the action button next to **Alauda Application Services Essentials** plugin > **Install**.
   </Tab>
 </Tabs>
 
-## Install Alauda Application Services RDS Framework Plugin
+## Installing Alauda Application Services RDS Framework
 
-::: tip Optional Deployment
-The plugin is a foundational component for the Application Services graphical interface. It can be skipped if the graphical interface is not needed.
+::: tip Optional Installation
+The plugin serves as a foundational component for Alauda Application Services web console. It is not necessary to install it if the web console is not required.
 :::
 
 ### Prerequisites
 
-1. Download the Alauda Application Services RDS Framework installation package that matches your platform.
-2. Use the platform's application publishing capability to publish Alauda Application Services RDS Framework to any cluster where you wish to use the Application Services graphical capabilities.
+1. Download Alauda Application Services RDS Framework installation package that matches the platform.
+2. Use the platform's application publishing capability to publish Alauda Application Services RDS Framework to any cluster where Application Services graphical capabilities are desired.
 
 ### Procedure
 
 <Tabs>
   <Tab label="Web Console">
     1. Log in to the platform and navigate to the **Platform Management** page.
-    2. In the left navigation bar, select **Application Store Management** -> **Operator**, and enter the **Operator Hub** page.
-    3. Find **Alauda Application Services RDS Framework**, click **Deploy**, and enter the deployment page.
+    2. In the left navigation bar, select **Marketplace** -> **Operator Hub** to enter the **Operator Hub** page.
+    3. Find **Alauda Application Services RDS Framework**, click **Install** to access the installation page.
 
     Configuration Parameters:
 
-    | **Parameter**   | **Recommended Configuration**                                            |
-    | :------- | :-------------------------------------------------- |
-    | **Upgrade Strategy** | **Manual**: You need to manually confirm the upgrade to the latest version when a new version is available in the Operator Hub. |
-    | **Deployment Mode** | **Cluster**: All namespaces under the cluster share a single Operator for instance creation and management, resulting in lower resource usage.    |
-    | **Channel**   | The default Channel is **stable**.                           |
-    | **Namespace** | Choose **Recommended Namespace**: It will be created automatically if none exists.                               |
+    | **Parameter**   | **Recommended Configuration**                                      |
+    | :-------------- | :----------------------------------------------------------------- |
+    | **Channel**     | The default Channel is **stable**.                                 |
+    | **Version**     | Select the desired version to install.                             |
+    | **Installation Mode** | **Cluster**: All namespaces under the cluster share one Operator for creating and managing instances, resulting in lower resource usage. |
+    | **Installation Location**   | Choose the **Recommended**: If none exists, it will be created automatically. |
+    | **Upgrade Strategy** | **Manual**: When a new version is available in the Operator Hub, manual confirmation is required to upgrade the Operator to the latest version. |
 
-    4. On the **Deploy Operator** page, choose **Default Configuration**, then click **Deploy** to complete the deployment of **Alauda Application Services RDS Framework**.
+    4. On the **Install Operator** page, select **Default Configuration**, then click **Install** to complete the installation of **Alauda Application Services RDS Framework**.
   </Tab>
 </Tabs>
 
-## Install Alauda Support for PostgreSQL Plugin
+## Installing Alauda support for PostgreSQL
 
 ### Prerequisites
 
-1. Download the plugin installation package that matches your platform.
-2. Use the platform's application publishing capability to publish the plugin to any cluster where you wish to use Alauda Support for PostgreSQL component capabilities.
+1. Download the plugin installation package that matches the platform.
+2. Use the platform's application publishing capability to publish the plugin to any cluster where Alauda support for PostgreSQL capabilities are desired.
 
 ### Procedure
 
 <Tabs>
   <Tab label="Web Console">
     1. Log in to the platform and navigate to the **Platform Management** page.
-    2. In the left navigation bar, select **Application Store Management** -> **Operator**, and enter the **Operator Hub** page.
-    3. Find **Alauda Support for PostgreSQL**, click **Deploy**.
-    4. **Alauda Support for PostgreSQL** is a platform-certified plugin, and there will be a prompt for the certified Operator. Click **Continue with Deployment** to enter the deployment interface.
+    2. In the left navigation bar, select **Marketplace** -> **Operator Hub** to enter the **Operator Hub** page.
+    3. Find **PostgreSQL**, click **Install** to access the installation page.
 
     Configuration Parameters:
 
-    | **Parameter**   | **Recommended Configuration**                                            |
-    | :------- | :-------------------------------------------------- |
-    | **Upgrade Strategy** | **Manual**: You need to manually confirm the upgrade to the latest version when a new version is available in the Operator Hub. |
-    | **Deployment Mode** | **Cluster**: All namespaces under the cluster share a single Operator for instance creation and management, resulting in lower resource usage.    |
-    | **Channel**   | The default Channel is **stable**.                           |
-    | **Namespace** | Choose **Recommended Namespace**: It will be created automatically if none exists.                               |
+    | **Parameter**   | **Recommended Configuration**                                       |
+    | :-------------- | :----------------------------------------------------------------- |
+    | **Channel**     | The default Channel is **stable**.                                 |
+    | **Version**     | Select the desired version to install.                             |
+    | **Installation Mode** | **Cluster**: All namespaces under the cluster share one Operator for creating and managing instances, resulting in lower resource usage. |
+    | **Installation Location**   | Choose the **Recommended**: If none exists, it will be created automatically. |
+    | **Upgrade Strategy** | **Manual**: When a new version is available in the Operator Hub, manual confirmation is required to upgrade the Operator to the latest version. |
 
-    4. On the **Deploy Operator** page, choose **Default Configuration**, then click **Deploy** to complete the deployment.
+    4. On the **Install Operator** page, select **Default Configuration**, then click **Install** to complete the installation.
   </Tab>
 </Tabs>

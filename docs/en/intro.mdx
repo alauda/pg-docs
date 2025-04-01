@@ -5,15 +5,15 @@ sourceSHA: b0e370ce82eeaa40d6cbf85fecfa5aa52540f15b9c982a974028c909fe8ed6ab
 
 # Introduction
 
-## What is PostgreSQL?
+## PostgreSQL Introduction
 
 **PostgreSQL** is a powerful, open-source object-relational database system known for its reliability, feature robustness, and performance. It uses and extends the SQL language combined with many features that safely store and scale the most complicated data workloads. PostgreSQL runs on all major operating systems and has been ACID-compliant since 2001. It is widely used for various applications, from single machines to data warehouses to web services with many concurrent users.
 
-## What is Alauda support for PostgreSQL?
+## Alauda support for PostgreSQL Introduction
 
 **Alauda support for PostgreSQL** is a Kubernetes-native management solution built upon the robust foundation of the Zalando Postgres Operator. It simplifies the deployment and full lifecycle management of PostgreSQL clusters within Kubernetes environments using Custom Resource Definitions (CRDs). This service automates complex operational tasks, including high availability setup, automated failover, scaling, rolling upgrades, and backup/recovery, allowing enterprises to run production-grade PostgreSQL databases effortlessly on Kubernetes.
 
-## Core Features
+## Key Features
 
 The key features provided by Alauda support for PostgreSQL include:
 
@@ -23,25 +23,18 @@ The key features provided by Alauda support for PostgreSQL include:
 
 - **Elastic Scalability**: Allows dynamic horizontal scaling (adding/removing replicas) and vertical scaling (adjusting CPU/memory resources) to adapt to changing workloads without downtime.
 
-- **Backup and Recovery**: Supports scheduled and manual backups to S3-compatible storage (AWS S3, Google Cloud Storage, Azure Blob Storage, MinIO), enabling reliable data protection and point-in-time recovery (PITR).
+- **Backup and Restore**: Supports scheduled and manual backups to S3-compatible storage (AWS S3, Google Cloud Storage, Azure Blob Storage, MinIO), enabling reliable data protection and point-in-time recovery (PITR).
 
 - **Security Features**: Provides enterprise-grade security options, including TLS encryption for data in transit, Kubernetes RBAC integration for access control, and support for secure password management.
 
 - **Monitoring and Logging**: Offers built-in integration with Prometheus for metrics collection and provides easy access to PostgreSQL logs, enabling comprehensive observability into database performance and health.
 
-- **Connection Pooling**: Optionally integrates PgBouncer to manage database connections efficiently, improving performance for applications with high connection counts.
-
 - **Custom Configuration**: Allows extensive customization of PostgreSQL parameters, Patroni settings, and Kubernetes resource configurations (e.g., affinity, tolerations).
 
-## Use Cases
-
-The primary use cases for the PostgreSQL Operator include:
+## Scenarios
 
 - **Cloud-Native Application Database**\
   Provides high-availability PostgreSQL instances for microservices architectures, seamlessly fitting CI/CD pipelines.
-
-- **Hybrid Cloud Data Services**\
-  Manages PostgreSQL instances across clouds/clusters through a unified Operator.
 
 - **Critical Business Systems**\
   Financial-grade high availability guarantees, supporting second-level failover and zero data loss recovery.
@@ -52,7 +45,7 @@ The primary use cases for the PostgreSQL Operator include:
 - **Development and Testing Environments**\
   Quickly clones production databases and supports on-demand creation of isolated testing environments.
 
-## Usage Limitations
+## Limitations
 
 - **Version Support**\
   Currently supports PostgreSQL versions 11,12,14.
@@ -68,12 +61,12 @@ The primary use cases for the PostgreSQL Operator include:
 
 - **Resource Requirements**: Minimum recommended configuration for a node is 2 CPU cores and 4GB of memory. Actual requirements depend on workload and cluster size.
 
-## Why Choose Alauda support for PostgreSQL?
+## Alauda support for PostgreSQL Advantages
 
 Alauda support for PostgreSQL streamlines the complexity of running and managing PostgreSQL on Kubernetes. By leveraging Kubernetes-native APIs and automation, it offers:
 
 - **Simplified Management**: Reduces the operational burden through declarative configuration and automated lifecycle management.
-- **Production-Ready**: Provides essential features like high availability, backup/recovery, and security needed for production workloads.
+- **Production-Ready**: Provides essential features like high availability, backup/restore, and security needed for production workloads.
 - **Cloud-Native Integration**: Seamlessly integrates with Kubernetes ecosystem tools for monitoring, logging, and storage.
 - **Flexibility**: Supports various PostgreSQL versions and offers extensive configuration options to tailor deployments to specific needs.
 
