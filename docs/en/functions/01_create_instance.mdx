@@ -3,9 +3,9 @@ weight: 1
 sourceSHA: 0cedde752e61fb3a6d6dbdc92f59d504a97e23765fdd7d96ab4846f5f7e74b39
 ---
 
-# Create an Instance {#create-instance}
+# Create Instance {#create-instance}
 
-## Feature Overview
+## Introduction
 
 This feature allows users to create and manage PostgreSQL database instances within a Kubernetes cluster. Users can quickly deploy database instances that meet their needs by configuring:
 
@@ -25,7 +25,7 @@ Before creating a PostgreSQL instance, please ensure that:
 
 Currently, PostgreSQL versions 11,12,14 are supported, with the recommendation to use the latest stable version.
 
-## Architecture Choices {#architecture-choices}
+## Architecture Choices
 
 Postgres Operator supports the following architectures:
 
@@ -187,14 +187,14 @@ Postgres Operator supports the following architectures:
   </Tab>
 </Tabs>
 
-> **Note**
-> 
-> 1. For production environments, use the [primary-replica architecture](#architecture-choices)
-> 2. Verify your storage class supports dynamic provisioning before deployment
-> 3. Configure appropriate [resource limits](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
-> 4. Implement regular backup procedures for critical data
+:::note
+1. For production environments, use the primary-replica architecture
+2. Verify your storage class supports dynamic provisioning before deployment
+3. Configure appropriate [resource limits](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
+4. Implement regular backup procedures for critical data
+:::
 
-> **Warning**
-> 
-> - Improper resource limits may lead to performance issues or pod evictions
-> - Without backups, data loss may occur during failures
+:::warning
+- Improper resource limits may lead to performance issues or pod evictions
+- Without backups, data loss may occur during failures
+:::

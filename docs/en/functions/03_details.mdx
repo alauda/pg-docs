@@ -5,7 +5,7 @@ sourceSHA: ee0d409b5298b0eebac3cf5e828ecd2a46b22edeb4d3468ac9c31cf88485b471
 
 # Instance Details
 
-## Feature Overview
+## Introduction
 
 View detailed information about the PostgreSQL instance, including:
 
@@ -15,11 +15,11 @@ View detailed information about the PostgreSQL instance, including:
 - Scheduling configuration
 - Related Kubernetes resources
 
-## Notes
-
+:::note
 1. Viewing Secrets requires the appropriate Kubernetes RBAC permissions.
 2. The information displayed on the instance detail page comes from the Kubernetes CRD and the actual running status.
 3. Some configuration information cannot be modified after the instance is created.
+:::
 
 ## Procedure
 
@@ -94,9 +94,3 @@ View detailed information about the PostgreSQL instance, including:
     - Pod Tolerations: Toleration configuration for instance Pods
   </Tab>
 </Tabs>
-
-## Learn More
-
-- [PostgreSQL Operator Architecture](../architecture.mdx)
-- [Instance Creation Guide](./01_create_instance.mdx)
-- [Instance Deletion Guide](./02_delete_instance.mdx)

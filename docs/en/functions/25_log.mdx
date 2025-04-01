@@ -1,78 +1,37 @@
 ---
 weight: 25
-sourceSHA: 4c1488e4ba901d34a5165a2c7af6b545507e828d2a23eebeabd06eb4eadd02b3
 ---
 
-# Log Query
+# Log
 
-Understand the logging process of PostgreSQL instances from the container level, such as PostgreSQL error logs, slow query logs, etc. Properly utilizing logs can help you quickly locate issues, address faults, and handle exceptions.
+## Introduction
 
-**Note**: To save disk space, the platform retains log records for 7 days by default (up to 30 days). The actual retention duration can be set in the operations center under **Logs** > **Policy Management**. If you need to retain logs for a longer period, please export them in a timely manner.
-
-## Prerequisites
-
-If the interface indicates no data, please deploy the **Log Collection Component** and ensure it is running properly.
+PostgreSQL provides a robust logging system, including detailed error logs. Understanding these logs, which capture events during instance operation at the container level within your Kubernetes cluster, is crucial. Proper analysis of logs, especially error logs, helps you quickly identify the root cause of issues, troubleshoot effectively, and handle faults or exceptions promptly.
 
 ## Procedure
 
 <Tabs>
   <Tab label="CLI">
-    ### View PostgreSQL Logs
+    1. View all related pods of the instance. Replace `${namespace}` with the actual namespace and `${instance_name}` with the instance name. Use the appropriate label selector for your PostgreSQL instance.
 
     ```bash
-    # Example: View primary node logs for instance 'my-pg-instance'
-    kubectl -n my-namespace logs my-pg-instance-0 -c postgres
-
-    # Example: View replica node logs
-    kubectl -n my-namespace logs my-pg-instance-1 -c postgres
+    # Example using the standard Alauda label selector
+    kubectl get pod -n ${namespace} -l "middleware.instance/name=${instance_name}"
     ```
 
-    ### View PostgreSQL Logs
+    2. Query the logs for a specific pod's `postgres` container. Replace `${namespace}` and `${pod_name}` with the actual values.
 
     ```bash
-    # Example: View primary node logs for instance 'my-pg-instance'
-    kubectl -n my-namespace logs my-pg-instance-0 -c postgres
-
-    # Example: View replica node logs
-    kubectl -n my-namespace logs my-pg-instance-1 -c postgres
-    ```
-
-    ### Export Logs to File
-
-    ```bash
-    # Example: Export logs to file
-    kubectl -n my-namespace logs my-pg-instance-0 -c postgres > postgres.log
+    kubectl logs -n ${namespace} ${pod_name} -c postgres
     ```
   </Tab>
 
   <Tab label="Web Console">
-    1. Click **PostgreSQL** in the left navigation bar.
-    2. Click on ***namespace name***.
-    3. Click on ***instance name***.
-    4. In the **Logs** tab, set the search criteria:
-       - To search for logs from a specific Pods, select a Pods in the **Pods** field, and click **Search**.
-       - To search for logs within a specific time frame, select a period in the **Time Range** field.
-    5. Wait a moment and check the results.
-    6. (Optional) Click <span style={{display: 'inline-block'}}>![](../../zh/assets/44buttonexport.png)</span> to export the logs.
+    1. In the left navigation bar, click **PostgreSQL**.
+    2. Click ***Name of the Namespace***.
+    3. Click ***Instance Name***.
+    4. In the **Logs** tab, set the View option to view the corresponding log.
   </Tab>
 </Tabs>
 
-## Log Type Descriptions
-
-| Log Type          | Description                               |
-| ----------------- | ----------------------------------------- |
-| PostgreSQL Log    | Contains information on errors, warnings, and other runtime messages |
-
-## Notes
-
-1. Log files are stored by default in the /var/log/postgresql directory inside the container.
-2. Log rotation policies can be adjusted in the PostgreSQL configuration:
-   - log_rotation_age: Maximum lifetime of an individual log file
-   - log_rotation_size: Maximum size of an individual log file
-3. Log levels can be configured using the log_min_messages parameter:
-   - DEBUG5 through DEBUG1: Detailed debugging information
-   - INFO: Informational messages
-   - NOTICE: Important but non-error conditions
-   - WARNING: Warnings
-   - ERROR: Errors
-5. Ensure sufficient disk space is allocated for log storage.
+**Note:** By default, PostgreSQL logs within the container are typically stored in the `/var/log/pg_log` directory, often as `.log` or `.csv` files. The exact path and format can be influenced by the PostgreSQL configuration.
