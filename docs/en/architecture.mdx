@@ -27,12 +27,7 @@ The PostgreSQL Operator manages PostgreSQL clusters using the Kubernetes Operato
    - Integrates Patroni and PostgreSQL
    - Handles initialization configuration and startup
 
-4. **pgBouncer**
-   - Provides connection pooling functionality
-   - Optimizes database connection management
-   - Supports read-write separation
-
-5. **Monitoring Component**
+4. **Monitoring Component**
    - Integrates Prometheus for metrics collection
    - Provides Grafana dashboards
    - Supports alert rule configuration
@@ -43,21 +38,12 @@ The PostgreSQL Operator manages PostgreSQL clusters using the Kubernetes Operato
 2. The Operator Controller listens for resource changes and creates the related Kubernetes resources
 3. Patroni is responsible for the initialization and high availability management of the cluster
 4. Spilo starts the PostgreSQL instance and applies the configuration
-5. pgBouncer provides connection pooling services
-6. The monitoring component collects metrics and displays them
+5. The monitoring component collects metrics and displays them
 
-## Deployment Architecture
+## Modes
 
 The PostgreSQL Operator supports the following deployment modes:
 
 - **Single Cluster Mode**: Runs in a single Kubernetes cluster
 - **Multi-Cluster Mode**: Manages PostgreSQL instances across multiple Kubernetes clusters
 - **High Availability Mode**: Achieves automatic failover through Patroni
-- **Read-Write Separation Mode**: Implements read-write separation using pgBouncer
-
-## Related Concepts
-
-- [Custom Resource Definition (CRD)](../concepts/crd.mdx)
-- [High Availability Architecture](../concepts/ha.mdx)
-- [Connection Pool](../concepts/connection_pool.mdx)
-- [Monitoring System](../concepts/monitoring.mdx)
