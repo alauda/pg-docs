@@ -41,7 +41,7 @@ spec:
   enableReadinessProbe: true
   numberOfInstances: 3
   postgresql:
-    version: "14"
+    version: "16"
     parameters:
       shared_buffers: "1GB"
       work_mem: "64MB"
@@ -195,7 +195,7 @@ spec:
 | Parameter | Default Value | Description |
 |------|--------|------|
 | numberOfInstances | 3 | Number of cluster nodes (recommend odd number) |
-| postgresql.version | "14" | PostgreSQL major version |
+| postgresql.version | "16" | PostgreSQL major version (11 - deprecated, 12, 14, or 16). Version 11 will be removed in a future release. |
 | postgresql.parameters | {} | PostgreSQL configuration parameters |
 | resources | - | Resource requests and limits |
 | volume.size | - | Storage volume size |
@@ -253,6 +253,5 @@ spec:
 7. Perform regular performance tuning and parameter optimization
 
 ## Learn More
-- [High Availability Architecture](../concepts/ha.mdx)
 - [Monitoring Configuration](../functions/35_monitor.mdx)
 - [Backup and Restore](../functions/15_back_restore.mdx)
