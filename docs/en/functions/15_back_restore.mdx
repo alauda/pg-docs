@@ -78,7 +78,7 @@ Provides storage-based physical backup and restore capabilities to ensure data s
           enablePgpool2: false
           numberOfInstances: 2
           postgresql:
-            version: "14"
+            version: "16"
           resources:
             limits:
               cpu: "1"
@@ -142,7 +142,7 @@ Provides storage-based physical backup and restore capabilities to ensure data s
        - Enter Name (must start with a letter, end with letter/number, lowercase alphanumeric and "-" only, max 30 chars)
        - Enter Display Name
        - Select Deploy Location
-       - Choose PostgreSQL Version (e.g., 11, 12, 14)
+       - Choose PostgreSQL Version (e.g., 12, 14, 16). Version 11 is deprecated and will be removed in a future release.
        - Set Number of Replicas (e.g., 3)
        - Configure Resource Requirements:
          - CPU (e.g., 1 Core)
