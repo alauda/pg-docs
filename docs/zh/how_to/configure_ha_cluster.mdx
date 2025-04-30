@@ -1,5 +1,6 @@
 ---
 weight: 20
+sourceSHA: 01937b88b408164f0a8bb985310c98fad9289f18d8c068253ca3c0be6647b697
 ---
 
 # 配置高可用 PostgreSQL 集群
@@ -7,19 +8,12 @@ weight: 20
 ## 功能简介
 本指南介绍如何在 Kubernetes 上配置高可用的 PostgreSQL 集群，使用 Patroni 实现自动故障转移和集群管理，支持同步复制、连接池、监控等功能。
 
-## 使用场景
-- 生产环境数据库部署
-- 关键业务系统数据库
-- 需要高可用保障的应用场景
-- 需要自动故障转移和恢复
-- 需要读写分离和负载均衡
-
 ## 前置条件
-1. 已安装 PostgreSQL Operator
-2. 配置了支持动态供给的存储类
-3. 具有创建 CRD 资源的权限
+1. PostgreSQL Operator 必须已安装
+2. 必须配置支持动态供给的存储类
+3. 必须获得创建 CRD 资源的权限
 4. 确保 Kubernetes 集群有足够资源（至少 3 个可用节点）
-5. 配置了备份存储（S3 或兼容存储）
+5. 必须配置备份存储（S3 或兼容存储）
 
 ## 操作步骤
 <Tabs>
@@ -165,7 +159,7 @@ spec:
   </tr>
   <tr>
     <td>副本数</td>
-    <td>设置集群节点数量（建议3个或以上）</td>
+    <td>设置集群节点数量（建议 3 个或以上）</td>
   </tr>
   <tr>
     <td>规格（容器限制值）</td>
@@ -177,7 +171,7 @@ spec:
   </tr>
   <tr>
     <td>存储配额</td>
-    <td>设置存储大小（建议50GB以上）</td>
+    <td>设置存储大小（建议 50GB 以上）</td>
   </tr>
 </table>
 
@@ -207,8 +201,8 @@ spec:
 | patroni.loop_wait | 10 | 状态检查间隔（秒） |
 | patroni.retry_timeout | 10 | 重试超时时间（秒） |
 | patroni.maximum_lag_on_failover | 1048576 | 最大允许的复制延迟（字节） |
-| patroni.synchronous_mode | false | 是否启用同步复制 |
-| patroni.synchronous_node_count | 1 | 同步复制节点数 |
+| patroni.synchronous_mode | true | 是否启用同步复制 |
+| patroni.synchronous_node_count | 2 | 同步复制节点数 |
 | patroni.pg_hba | [] | 自定义 pg_hba 配置 |
 
 ### 备份配置
@@ -222,7 +216,7 @@ spec:
 
 ## 操作结果验证
 1. 查看集群状态是否为 Running
-2. 确认所有 Pod 正常运行
+2. 确认所有 Pods 正常运行
 3. 检查 Patroni 状态：
    ```bash
    kubectl exec pg-ha-cluster-0 -- patronictl list
@@ -251,6 +245,5 @@ spec:
 7. 定期进行性能调优和参数优化
 
 ## 了解更多
-- [高可用架构](../concepts/ha.mdx)
-- [监控配置](../functions/35_monitor.mdx) 
+- [监控配置](../functions/35_monitor.mdx)
 - [备份恢复](../functions/15_back_restore.mdx)
