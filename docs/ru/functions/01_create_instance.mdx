@@ -1,0 +1,201 @@
+---
+weight: 1
+sourceSHA: 854a0f0000769ae4b5e3f54b7f000b492111cd4e5e02be7df623cad68c173765
+---
+
+# Создание экземпляра \{#create-instance}
+
+## Введение
+
+Эта функция позволяет пользователям создавать и управлять экземплярами базы данных PostgreSQL в кластере Kubernetes. Пользователи могут быстро развертывать экземпляры баз данных, соответствующие их потребностям, настраивая:
+
+- Спецификации ресурсов
+- Информацию об учетной записи
+- Требования к хранилищу
+
+## Предварительные условия
+
+Прежде чем создать экземпляр PostgreSQL, убедитесь, что:
+
+1. Соответствующие классы хранения были настроены.
+2. Оператор Postgres установлен и работает правильно.
+3. У вас есть необходимые разрешения для создания ресурсов.
+
+## Поддержка версий
+
+В настоящее время поддерживаются версии PostgreSQL 11, 12, 14, рекомендуется использовать последнюю стабильную версию.
+
+## Выбор архитектуры
+
+Оператор Postgres поддерживает следующие архитектуры:
+
+- **Одноузловая**: Подходит для сред разработки и тестирования
+- **Репликация первичного узла**: Рекомендуется для производственных сред с:
+  - Автоматическим переключением при сбое
+  - Высокой доступностью
+  - Редунданцией данных
+
+## Процедура
+
+<Tabs>
+  <Tab label="CLI">
+    ### Создание одноузлового экземпляра
+
+    ```yaml
+    # Пример минимальной конфигурации кластера с высокой доступностью
+    cat << EOF | kubectl create -f -
+    apiVersion: acid.zalan.do/v1
+    kind: postgresql  # Определение пользовательского ресурса для кластеров PostgreSQL
+    metadata:
+      name: pg-single
+      namespace: c1-midautons
+    spec:
+      ipFamilyPrefer: ""
+      teamId: ACID
+      enableExporter: true
+      enablePgpool2: false
+      spiloPrivileged: false
+      spiloRunAsGroup: 103
+      spiloRunAsUser: 101
+      spiloAllowPrivilegeEscalation: false
+      enableReadinessProbe: true
+      postgresql:
+        parameters:
+          log_directory: /var/log/pg_log
+        version: "14"
+      numberOfInstances: 1
+      resources:
+        requests:
+          cpu: "1"
+          memory: 2Gi
+        limits:
+          cpu: "1"
+          memory: 2Gi
+      volume:
+        size: 5Gi
+        storageClass: c1-topolvmsc
+    EOF
+    ```
+
+    ### Создание кластера с высокой доступностью
+
+    ```bash
+    cat << EOF | kubectl -n $NAMESPACE create -f -
+    apiVersion: acid.zalan.do/v1
+    kind: postgresql
+    metadata:
+      name: pg-ha
+      namespace: default
+    spec:
+      ipFamilyPrefer: ""
+      teamId: ACID
+      enableExporter: true
+      enablePgpool2: false
+      spiloPrivileged: false
+      spiloRunAsGroup: 103
+      spiloRunAsUser: 101
+      spiloAllowPrivilegeEscalation: false
+      enableReadinessProbe: true
+      postgresql:
+        parameters:
+          log_directory: /var/log/pg_log
+        version: "14"
+      numberOfInstances: 3
+      resources:
+        requests:
+          cpu: "1"
+          memory: 2Gi
+        limits:
+          cpu: "1"
+          memory: 2Gi
+      volume:
+        size: 50Gi
+        storageClass: default
+      patroni:
+        ttl: 30
+        loop_wait: 10
+        retry_timeout: 10
+    EOF
+    ```
+
+    После создания вы можете проверить статус экземпляра с помощью следующей команды:
+
+    ```bash
+    kubectl -n $NAMESPACE get postgresql
+    ```
+
+    Ожидаемый вывод:
+
+    ```bash
+    NAME                            AGE
+    pg-ha                           21h
+    ```
+
+    Поля вывода:
+
+    | Поле  | Описание            |
+    | ----- | ------------------- |
+    | NAME  | Имя экземпляра      |
+    | AGE   | Время с момента создания |
+  </Tab>
+
+  <Tab label="Web Console">
+    1. В левой навигационной панели нажмите **PostgreSQL**.
+    2. Выберите целевое пространство имен.
+    3. Нажмите **Создать экземпляр PostgreSQL**.
+    4. Настройте следующие параметры:
+
+    <table>
+      <tr>
+        <th>Элемент конфигурации</th>
+        <th>Описание</th>
+      </tr>
+
+      <tr>
+        <td>Имя экземпляра</td>
+        <td>Уникальный идентификатор для кластера</td>
+      </tr>
+
+      <tr>
+        <td>Версия PostgreSQL</td>
+        <td>Выберите поддерживаемую версию PostgreSQL</td>
+      </tr>
+
+      <tr>
+        <td>Количество реплик</td>
+        <td>Установите количество узлов кластера</td>
+      </tr>
+
+      <tr>
+        <td>Спецификации (Пределы ресурсов контейнера)</td>
+        <td>Установите пределы ресурсов CPU и памяти</td>
+      </tr>
+
+      <tr>
+        <td>Класс хранения</td>
+        <td>Установите класс хранения</td>
+      </tr>
+
+      <tr>
+        <td>Квота на хранение</td>
+        <td>Установите класс хранения и размер</td>
+      </tr>
+    </table>
+
+    5. Нажмите **Создать** и дождитесь изменения статуса экземпляра на **Работающий**.
+  </Tab>
+</Tabs>
+
+:::note
+
+1. Для производственных сред используйте архитектуру первичный-реплика
+2. Убедитесь, что ваш класс хранения поддерживает динамическое предоставление до развертывания
+3. Настройте соответствующие [пределы ресурсов](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)
+4. Реализуйте регулярные процедуры резервного копирования для критически важных данных
+   :::
+
+:::warning
+
+- Неправильные пределы ресурсов могут привести к проблемам с производительностью или эвакуации подов
+- Без резервных копий возможна потеря данных в случае сбоев
+  :::
