@@ -31,20 +31,6 @@ The key features provided by Alauda support for PostgreSQL include:
 
 - **Custom Configuration**: Allows extensive customization of PostgreSQL parameters, Patroni settings, and Kubernetes resource configurations (e.g., affinity, tolerations).
 
-## Scenarios
-
-- **Cloud-Native Application Database**\
-  Provides high-availability PostgreSQL instances for microservices architectures, seamlessly fitting CI/CD pipelines.
-
-- **Critical Business Systems**\
-  Financial-grade high availability guarantees, supporting second-level failover and zero data loss recovery.
-
-- **Data Security Compliance**\
-  Backup retention policies and access control that meet regulatory requirements such as GDPR.
-
-- **Development and Testing Environments**\
-  Quickly clones production databases and supports on-demand creation of isolated testing environments.
-
 ## Limitations
 
 - **Version Support**\
@@ -61,13 +47,3 @@ The key features provided by Alauda support for PostgreSQL include:
 
 - **Resource Requirements**: Minimum recommended configuration for a node is 2 CPU cores and 4GB of memory. Actual requirements depend on workload and cluster size.
 
-## Alauda support for PostgreSQL Advantages
-
-Alauda support for PostgreSQL streamlines the complexity of running and managing PostgreSQL on Kubernetes. By leveraging Kubernetes-native APIs and automation, it offers:
-
-- **Simplified Management**: Reduces the operational burden through declarative configuration and automated lifecycle management.
-- **Production-Ready**: Provides essential features like high availability, backup/restore, and security needed for production workloads.
-- **Cloud-Native Integration**: Seamlessly integrates with Kubernetes ecosystem tools for monitoring, logging, and storage.
-- **Flexibility**: Supports various PostgreSQL versions and offers extensive configuration options to tailor deployments to specific needs.
-
-Whether you are migrating existing PostgreSQL databases to Kubernetes or deploying new cloud-native applications, Alauda support for PostgreSQL provides a reliable, scalable, and efficient solution.
