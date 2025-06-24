@@ -1,6 +1,6 @@
 title: Alauda support for PostgreSQL
 logoText: Alauda support for PostgreSQL
-lang: zh
+lang: en
 api:
   crds:
     - docs/shared/crds/*.yaml
