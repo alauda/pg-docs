@@ -14,16 +14,16 @@ PostgreSQL provides a robust logging system, including detailed error logs. Unde
   <Tab label="CLI">
     1. View all related pods of the instance. Replace `${namespace}` with the actual namespace and `${instance_name}` with the instance name. Use the appropriate label selector for your PostgreSQL instance.
 
-    ```bash
-    # Example using the standard Alauda label selector
-    kubectl get pod -n ${namespace} -l "middleware.instance/name=${instance_name}"
-    ```
+        ```bash
+        # Example using the standard Alauda label selector
+        kubectl get pod -n ${namespace} -l "middleware.instance/name=${instance_name}"
+        ```
 
     2. Query the logs for a specific pod's `postgres` container. Replace `${namespace}` and `${pod_name}` with the actual values.
 
-    ```bash
-    kubectl logs -n ${namespace} ${pod_name} -c postgres
-    ```
+        ```bash
+        kubectl logs -n ${namespace} ${pod_name} -c postgres
+        ```
   </Tab>
 
   <Tab label="Web Console">
