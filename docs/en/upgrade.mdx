@@ -9,10 +9,57 @@ title: Upgrade
 
 # Upgrade
 
+:::note
+
+This document provides the upgrade path principles and supported version compatibility for Alauda Support for PostgreSQL.
+:::
+
 :::warning
 PostgreSQL 11 is deprecated and will be removed in a future release. Please upgrade to PostgreSQL 12, 14 or 16.
 :::
 
-Alauda support for PostgreSQL will execute upgrades based on the configured upgrade strategy:
+## Upgrade Paths
+
+### Compatibility Matrix
+
+The table below lists supported versions of the Alauda Support for PostgreSQL and its key components:
+
+| Alauda PostgreSQL Version |  PostgreSQL Versions                | Kubernetes Versions |
+|:-------------------------:|:-----------------------------------:|:-------------------:|
+| v4.1.x                    | 12, 14, 16                      | 1.25+               |
+| v4.0.x                    | 11, 12, 14                      | 1.25+               |
+
+## Prerequisites
+
+Before initiating an upgrade, please ensure the following:
+
+1. **Version Compatibility**: Your current version falls within a supported upgrade path.
+2. **Component Health**: PostgreSQL instances are in a `Ready` state.
+3. **Resource Availability**: The cluster has sufficient resources to support the upgrade process.
+
+## Upgrade Path Guidelines
+
+### Consecutive Upgrade (Recommended)
+- **Description**: Upgrade step-by-step through consecutive minor versions.
+- **Example**: `4.1.x → 4.2.x`
+
+### Patch-Level Upgrade
+- **Description**: Patch upgrades within the same minor version are fully compatible.
+- **Example**: `4.1.0 → 4.1.x`
+
+### PostgreSQL Version Alignment
+- **Description**: Ensure PostgreSQL version upgrades follow the operator's compatibility matrix.
+- **Example**: Alauda Support for PostgreSQL `4.1.0` → PostgreSQL `12`, `14`, or `16`
+
+:::note
+If your current PostgreSQL version is being removed in the next Alauda PostgreSQL Version, you must manually upgrade your PostgreSQL version to a supported version before upgrading to the next Alauda PostgreSQL Version. This ensures compatibility and prevents upgrade failures.
+:::
+
+## Upgrade Process Reference
+- 📝 **[Release Notes](./release_notes.mdx)**: Version-specific changes, new features, and deprecations
+
+## Upgrade Alauda Support for PostgreSQL
+
+Alauda Support for PostgreSQL will execute upgrades based on the configured upgrade strategy:
 - **Automatic** : Auto-upgrades are triggered immediately upon detecting new component versions.
 - **Manual** : Requires manual approval before initiating the upgrade process.
