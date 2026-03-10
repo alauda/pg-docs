@@ -40,7 +40,56 @@ The PostgreSQL Operator manages PostgreSQL clusters using the Kubernetes Operato
 4. Spilo starts the PostgreSQL instance and applies the configuration
 5. The monitoring component collects metrics and displays them
 
-## Modes
+## RBAC Architecture
+
+The PostgreSQL Operator implements a least-privilege RBAC model with segregation of duties for enterprise security compliance.
+
+### Operator Permissions
+
+The operator follows the principle of least privilege. It only has the minimum permissions required to manage PostgreSQL clusters:
+
+| Resource | Permissions | Notes |
+|----------|-------------|-------|
+| CustomResourceDefinitions | get, list, watch | Read-only (OLM manages CRDs) |
+| PersistentVolumes | get, list, watch | Read-only (PV provisioner manages) |
+| Roles | get, list, watch | Read-only |
+| RoleBindings | get, create, update | Namespace-scoped |
+| ServiceAccounts | get, create | No delete |
+
+The operator does **not** have cluster-level RBAC management permissions (ClusterRole, ClusterRoleBinding).
+
+### Runtime RBAC
+
+When a PostgreSQL CR is created in a namespace, the operator automatically creates:
+
+| Resource | Scope | Purpose |
+|----------|-------|---------|
+| ServiceAccount | Per namespace | For PostgreSQL pods |
+| RoleBinding | Per namespace | Bind to operator ClusterRole |
+
+This is the standard Kubernetes operator pattern where ClusterRole permissions are controlled by OLM/admin.
+
+### User-Facing Roles
+
+The operator provides role templates for segregation of duties:
+
+| Role | Permissions | Use Case |
+|------|-------------|----------|
+| admin | Full CRUD on postgresqls, backups, restores | DBA, Platform Admin |
+| edit | Create/Update postgresqls (no delete) | Developer |
+| view | Read-only access | Auditor, Support |
+| backup | Create/manage PostgresBackup only | Backup Operator |
+| restore | Create/manage PostgresRestore only | Restore Operator |
+
+### Role Aggregation
+
+User-facing roles aggregate to platform roles:
+
+- **admin**: Aggregates admin-base + backup + restore roles
+- **edit/view**: Aggregates to `rbac.cpaas.io/aggregate-to-namespace-developer`
+- **All roles**: Aggregate to `rbac.cpaas.io/aggregate-to-scope-business-ns`
+
+## Deployment Modes
 
 The PostgreSQL Operator supports the following deployment modes:
 
