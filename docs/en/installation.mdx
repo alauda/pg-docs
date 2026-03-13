@@ -90,3 +90,42 @@ The plugin serves as a foundational component for Data Services view. It is not 
     4. On the **Install Operator** page, select **Default Configuration**, then click **Install** to complete the installation.
   </Tab>
 </Tabs>
+
+## Enabling PostgreSQL UI Feature Gate
+
+After installing the PostgreSQL operator, you need to enable the PostgreSQL UI feature gate to access the PostgreSQL management interface in the web console.
+
+### Prerequisites
+
+- Platform administrator privileges
+- PostgreSQL operator installed on the target cluster
+
+### Procedure
+
+1. Navigate to the Feature Gate page:
+   - Access the feature gate configuration at `{platform-access-address}/console-platform/feature-gate`
+   - For example, if your platform access address is `https://demo.example.com/console-portal/`, the feature gate page would be `https://demo.example.com/console-platform/feature-gate`
+
+2. Enable the PostgreSQL UI feature gates:
+
+   | **Feature Gate** | **Stage** | **Description** |
+   | :--------------- | :-------- | :-------------- |
+   | **middleware-rds-postgresql** | Alpha | Provide the capability to manage PostgreSQL (UI) |
+   | **middleware-rds-postgresql-backup** | Alpha | Provide the capability to perform backup and restore operations for PostgreSQL (UI) |
+
+3. In the **System Settings** section, locate the following feature gates and enable them:
+   - `middleware-rds-postgresql`
+   - `middleware-rds-postgresql-backup` (optional, for backup/restore UI)
+
+4. The feature gate changes take effect immediately. You can now access the PostgreSQL management UI from the navigation bar.
+
+::: note Alpha Features
+The PostgreSQL UI feature gates are currently in **Alpha** stage. To enable Alpha features, ensure the **Alpha Feature** toggle in the **Stage Setting** section is turned on.
+:::
+
+### Verification
+
+After enabling the feature gates:
+1. Navigate to **Data Services** in the left navigation bar
+2. You should see **PostgreSQL** listed as an available database service
+3. Click **PostgreSQL** to access the instance management interface
