@@ -1,0 +1,143 @@
+---
+weight: 30
+i18n:
+  title:
+    en: Assign PostgreSQL RBAC Roles
+---
+
+# Assign PostgreSQL RBAC Roles
+
+Starting in v4.3.0, the PostgreSQL Operator ships five aggregated user-facing roles for segregation of duties: `admin`, `edit`, `view`, `backup`, and `restore`. This guide shows how to grant each role to a user or group via a `RoleBinding`.
+
+## Overview
+
+| Role      | Capabilities                                                            | Typical Subject         |
+|-----------|-------------------------------------------------------------------------|-------------------------|
+| `admin`   | Full CRUD on `postgresqls`, `postgresbackups`, `postgresrestores`        | DBA, Platform Admin     |
+| `edit`    | Create and update `postgresqls` (no delete)                              | Application Developer   |
+| `view`    | Read-only access to all PostgreSQL-related resources                     | Auditor, Support        |
+| `backup`  | Create and manage `postgresbackups` only                                 | Backup Operator         |
+| `restore` | Create and manage `postgresrestores` only                                | Restore Operator        |
+
+:::note
+`admin` aggregates `edit`, `view`, `backup`, and `restore`. `edit` and `view` also aggregate to the namespace-developer scope, so users already holding `namespace-developer` inherit them automatically.
+:::
+
+## Procedure
+
+Each example grants the role in a single namespace. Replace `$NAMESPACE`, `$USER`, and `$GROUP` with your values.
+
+### Grant `admin`
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: postgres-admin
+  namespace: $NAMESPACE
+subjects:
+  - kind: User
+    name: $USER
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: cpaas:middleware-postgres:business-ns:admin
+  apiGroup: rbac.authorization.k8s.io
+```
+
+### Grant `edit`
+
+Allows developers to create and update `postgresql` instances without deleting them.
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: postgres-edit
+  namespace: $NAMESPACE
+subjects:
+  - kind: Group
+    name: $GROUP
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: cpaas:middleware-postgres:business-ns:edit
+  apiGroup: rbac.authorization.k8s.io
+```
+
+### Grant `view`
+
+Read-only access for auditors or support engineers.
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: postgres-view
+  namespace: $NAMESPACE
+subjects:
+  - kind: User
+    name: $USER
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: cpaas:middleware-postgres:business-ns:view
+  apiGroup: rbac.authorization.k8s.io
+```
+
+### Grant `backup`
+
+Lets a user create `postgresbackups` without touching cluster configuration.
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: postgres-backup
+  namespace: $NAMESPACE
+subjects:
+  - kind: User
+    name: $USER
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: cpaas:middleware-postgres:business-ns:backup
+  apiGroup: rbac.authorization.k8s.io
+```
+
+### Grant `restore`
+
+Grants the ability to create and manage `postgresrestores` only.
+
+```yaml
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: postgres-restore
+  namespace: $NAMESPACE
+subjects:
+  - kind: User
+    name: $USER
+    apiGroup: rbac.authorization.k8s.io
+roleRef:
+  kind: ClusterRole
+  name: cpaas:middleware-postgres:business-ns:restore
+  apiGroup: rbac.authorization.k8s.io
+```
+
+## Verification
+
+Confirm the binding took effect with `kubectl auth can-i`:
+
+```bash
+# As a user with the edit role
+kubectl auth can-i create postgresqls.acid.zalan.do -n $NAMESPACE --as=$USER
+# → yes
+kubectl auth can-i delete postgresqls.acid.zalan.do -n $NAMESPACE --as=$USER
+# → no
+```
+
+## Related
+
+- [RBAC Architecture](../architecture.mdx#rbac-architecture)
+- [Release Notes](../release_notes.mdx)
