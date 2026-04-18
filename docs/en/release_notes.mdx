@@ -11,7 +11,6 @@ i18n:
 
 ### New and Optimized Features
 
-- **PostgreSQL 17 support.** The Spilo image is upgraded to `spilo-17` and the operator default `target_major_version` is raised to `17`. PostgreSQL 12 support is removed (end-of-life); `minimal_major_version` is now `13`.
 - **RBAC least-privilege and role segregation.** The operator no longer manages cluster-level RBAC resources, and `deletecollection` has been removed from all resource rules. Five new user-facing aggregated roles are introduced — `admin`, `edit`, `view`, `backup`, and `restore` — enabling segregation of duties. The `SkipRuntimeRBACCreation` configuration option was removed; the operator now always provisions the namespace-scoped `ServiceAccount` and `RoleBinding` at runtime. See [RBAC Architecture](./architecture.mdx#rbac-architecture) and [Assign PostgreSQL RBAC Roles](./how_to/assign_postgres_rbac.mdx) for details.
 - **Cross-Cluster Replication (XCR) stability.** Added `statement_timeout` to XCR connections and silenced spurious error logging. Guarded XCR metadata writes when no sync replica is ready and cleaned up orphaned replication slots when standby clusters scale down. Removed aggressive slot removal from `BeforeClusterSync` that could disrupt healthy replicas, and eliminated unnecessary local-DB connection attempts in `preReconcile` for LoadBalancer-based standby clusters.
 - **Reliability fixes.**
