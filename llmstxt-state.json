@@ -1,0 +1,210 @@
+{
+  "version": 1,
+  "generator_version": 3,
+  "project_name": "Alauda support for PostgreSQL",
+  "summary": "Kubernetes-native PostgreSQL management solution built on the Zalando Postgres Operator. Automates deployment, high availability, failover, scaling, backup and recovery, and monitoring of PostgreSQL clusters via CRDs.",
+  "generated_at": "2026-05-16T09:38:04Z",
+  "include_patterns": [
+    "docs/**/*.md",
+    "docs/**/*.mdx"
+  ],
+  "exclude_patterns": [
+    "**/node_modules/**",
+    "**/.git/**",
+    "**/llms.txt",
+    "**/CHANGELOG.md",
+    "**/CONTRIBUTING.md",
+    "README.md",
+    ".llmstxt-cache/**",
+    "**/.llmstxt-cache/**",
+    "llms.txt",
+    "llmstxt-state.json",
+    "**/llmstxt-state.json"
+  ],
+  "grouping_base_path": "docs/en",
+  "description_max_words": 150,
+  "files": {
+    "docs/en/apis/index.mdx": {
+      "sha256": "bee6af16a9eea33d27fa557e7d34ddba3ddee346de23de1659f1a0bd1ea670f1",
+      "size": 206,
+      "description": "Top-level API Reference landing page that renders an Overview component aggregating the Kubernetes APIs subtree (CRDs for postgresqls, postgresbackups, and postgresrestores).",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/apis/kubernetes_apis/index.mdx": {
+      "sha256": "3ab1f3ce42d8f6234d3e62fe4c8ee3fc3069b3a4cef43acf199924f41442e0fc",
+      "size": 211,
+      "description": "Index page for the Kubernetes APIs section, rendering an Overview component that links into the PostgreSQL CRD reference (postgresqls, postgresbackups, postgresrestores).",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/apis/kubernetes_apis/postgres/index.mdx": {
+      "sha256": "2155e9dc2b0e9b63f162ae8446a5e5540bd2dcd2439ed1bfc5e1b9c96163cb3d",
+      "size": 211,
+      "description": "Index page for the PostgreSQL APIs group, rendering an Overview component that surfaces the three CRDs documented under this section: postgresqls.acid.zalan.do, postgresbackups.middleware.alauda.io, and postgresrestores.middleware.alauda.io.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/apis/kubernetes_apis/postgres/postgresbackup.mdx": {
+      "sha256": "2d0b38f8f98ecc5788062ea5699a20a5ff53373b74251c06d0b7a078f492df27",
+      "size": 229,
+      "description": "Auto-generated CRD reference for `postgresbackups.middleware.alauda.io`, rendered via the `K8sCrd` component to expose the full schema (spec/status fields, validations, defaults) used to declare on-demand and scheduled PostgreSQL backups stored on S3-compatible object storage.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/apis/kubernetes_apis/postgres/postgresqls.mdx": {
+      "sha256": "fde9824e475ab8372192709c28bf75be7bd10589d8a5e803d24ec51c08f1ef53",
+      "size": 209,
+      "description": "Auto-generated CRD reference for `postgresqls.acid.zalan.do`, the core Zalando Postgres Operator resource, rendered via the `K8sCrd` component to surface all spec fields used to declare a PostgreSQL cluster (version, replica count, resources, volume, Patroni tuning, users, databases, parameters, etc.) and its status.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/apis/kubernetes_apis/postgres/postgresrestores.mdx": {
+      "sha256": "bf33554176ddf0a8d7ab78af74b175595c4fe75233da309539d67bd3ce643b15",
+      "size": 233,
+      "description": "Auto-generated CRD reference for `postgresrestores.middleware.alauda.io`, rendered via the `K8sCrd` component to expose the schema for restoring PostgreSQL clusters from a `PostgresBackup`, including source selection and point-in-time recovery (PITR) options.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/architecture.mdx": {
+      "sha256": "aff646c6ab5c3d876c84a9f05e06c90edcac3d01c1fe59b258fa16b89f19dfd4",
+      "size": 3869,
+      "description": "Reference architecture for the PostgreSQL Operator (built on the Zalando Postgres Operator), detailing the four core components: the Operator Controller that reconciles PostgreSQL CRDs, Patroni for HA and failover, Spilo as the PostgreSQL container image, and Prometheus/Grafana monitoring. Also documents the RBAC model with least-privilege operator permissions, runtime-created ServiceAccounts and RoleBindings, user-facing roles (admin, edit, view, backup, restore) with role aggregation to cpaas.io platform roles, and supported deployment modes (single-cluster, multi-cluster, and high-availability).",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/functions/01_create_instance.mdx": {
+      "sha256": "e101d2daf649122700c4f441cbf6a5b61723cfc3bb1c9491aa82c1aad19e0782",
+      "size": 5079,
+      "description": "Walk-through for creating PostgreSQL instances either via CLI (`kubectl create` against the `acid.zalan.do/v1` `postgresql` kind) or the web console. Provides full single-node and 3-replica HA YAML examples covering `numberOfInstances`, PostgreSQL 14/16 version selection, CPU/memory `resources`, `volume` size and StorageClass, Patroni TTL/loop_wait/retry_timeout, PSA-restricted security settings (`spiloRunAsUser/Group`, `restrictedPsaEnabled`), and `enableExporter` for Prometheus metrics; includes prerequisites, architecture recommendations, and production caveats.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/functions/02_delete_instance.mdx": {
+      "sha256": "951dffa27bc05eb7e76c582c23cd1e2d1a81034446d6370f39a53a55cee12f49",
+      "size": 2044,
+      "description": "Procedure for deleting a PostgreSQL instance via `kubectl delete postgresql <name>` or the web console Actions menu, warning that deletion is irreversible and cascades to the StatefulSet, Pods, ConfigMaps, Secrets, PVCs, and monitoring/logging resources. Includes post-deletion verification commands (`kubectl get postgresql`, `kubectl get pvc`) and cross-links to backup, restore, and troubleshooting documentation.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/functions/03_details.mdx": {
+      "sha256": "319529ac27c4aa983ea97c93391a5af2223d3072163e684e9e1aa96e76304eea",
+      "size": 2921,
+      "description": "Guide for inspecting a running PostgreSQL instance from the CLI or web console, showing how to retrieve the cluster spec (`kubectl get postgresql -o yaml`), fetch user credentials from the `<instance>.credentials.postgresql.acid.zalan.do` Secret, find the read-write/read-only Service endpoints, view pod resource limits and the `pgdata-<instance>-0` PVC, and check node affinity/tolerations. Documents the UI instance detail page sections (basic info, configuration, scheduling) and notes that some fields are immutable after creation.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/functions/15_back_restore.mdx": {
+      "sha256": "f46fe96312de0820df3dd321c1a1b33eb7935fb42bb64fbfd00ee7476ae95e8f",
+      "size": 6258,
+      "description": "Walks through storage-based physical backup and point-in-time restore for PostgreSQL instances using the `PostgresBackup` and `PostgresRestore` CRDs (apiVersion `middleware.alauda.io/v1`), including configuring S3-compatible backup storage with bucket, namespace, and `retainDay` retention on the `postgresql` resource. Covers both kubectl CLI manifests (specifying `backupCluster`, `targetCluster` Zalando `postgresql` spec, and a `timestamp` for PITR) and the Web Console flow under the Backup and Restore tab, plus a reference table of backup status fields (`backupName`, `clusterUid`, `startLsn`/`finishLsn`, `executeNode`, `pgVersion`, `state`) and operational precautions around storage class compatibility and restore-time write isolation.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/functions/18_scheduling.mdx": {
+      "sha256": "6d0b607a8d36a630ad639c57f45129e1487ded0e4c2f8a15a2fbc70d4475a64d",
+      "size": 4051,
+      "description": "Explains how to pin PostgreSQL instance pods to dedicated nodes using Kubernetes node labels and pod tolerations configured in the Scheduling Configuration section of the instance creation page, with a worked example placing instances on nodes 192.168.100.103-105 labeled `keypostgres=valuepostgres` and tainted with the same key. Includes a reference of taint `effect` semantics (`NoSchedule`, `PreferNoSchedule`, `NoExecute`) and toleration operators (`Equal`, `Exists`), plus prerequisites for platform administrators to apply node labels and taints before scheduling, and a verification path via Container Platform > Compute Components > Container Groups.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/functions/25_log.mdx": {
+      "sha256": "83909df91fa6550f683942384ec415ec8143064d1b58d929029725321a4a1fd8",
+      "size": 1568,
+      "description": "Shows how to access PostgreSQL container-level logs for troubleshooting instance events and errors, using `kubectl get pod -l \"middleware.instance/name=${instance_name}\"` to locate instance pods and `kubectl logs <pod> -c postgres` to read the `postgres` container's output, or the Logs tab in the Web Console under the instance detail page. Notes that PostgreSQL writes logs to `/var/log/pg_log` inside the container by default as `.log` or `.csv` files, subject to PostgreSQL configuration.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/functions/35_monitor.mdx": {
+      "sha256": "c7916119016287c090c11444c42c15c64433a36edc78a27ace55636526a701ee",
+      "size": 2982,
+      "description": "Describes the built-in monitoring panel for PostgreSQL instances, covering resource, performance, and capacity metrics surfaced in the instance's Monitoring tab and usable for alerting and notification policies. Catalogs the default metrics collected (CPU utilization, memory usage, file descriptors, connection count vs. max_connections, transaction commit/rollback rates, SELECT/INSERT/UPDATE/DELETE query counts, cache hit rate, table-level lock contention, temporary file size, checkpoint frequency, conflicts/deadlocks, background writer buffer stats) with guidance such as keeping cache hit rate above 95% and enabling the PostgreSQL statistics collector for some metrics.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/functions/index.mdx": {
+      "sha256": "e38550d6e08b403a1e7548c574ddd476d3b8455573858c17f31b0a3e620fbb61",
+      "size": 170,
+      "description": "Landing page for the Feature Guide (Guides) section of the Alauda PostgreSQL documentation; renders an `<Overview />` component that lists the per-feature subtopics such as backup and restore, scheduling configuration, logs, and monitoring.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/how_to/configure_ha_cluster.mdx": {
+      "sha256": "d1e19f3ff8f33240cc3a0fdc6bb5b4e326bbc66f7cf8a659a48d2966b8910245",
+      "size": 6663,
+      "description": "End-to-end recipe for deploying a highly available PostgreSQL cluster on Kubernetes using the Zalando `acid.zalan.do/v1` `postgresql` CRD with Patroni-managed failover, including a 3-instance manifest setting `synchronous_mode: true`, `synchronous_node_count: 2`, custom `pg_hba`, PostgreSQL parameters (`shared_buffers`, `work_mem`), volume IOPS, scheduled S3 backups, and optional PgBouncer-style connection pooler and Prometheus exporter sidecars. Documents key Patroni tuning parameters (`ttl`, `loop_wait`, `retry_timeout`, `maximum_lag_on_failover`), verification commands (`patronictl list`, `pg_stat_replication`), failover testing by deleting the primary pod, plus a Web Console flow and best practices for SSD storage, alert thresholds, and synchronous replica counts.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/how_to/index.mdx": {
+      "sha256": "bab430c4d8eac969b62dc1c24ae8685666141e58877493e80b25b0862765051d",
+      "size": 131,
+      "description": "Landing page for the HowTo section of the Alauda PostgreSQL documentation; renders an `<Overview />` component that links to task-oriented guides such as configuring a high availability PostgreSQL cluster.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/index.mdx": {
+      "sha256": "1ab8b46c2436e7025479813c2adbe456d47e917108ea68fcdd2c4633a0b0024e",
+      "size": 133,
+      "description": "Top-level navigation landing page for the Alauda support for PostgreSQL documentation, rendering an auto-generated Overview component that links into the introduction, installation, upgrade, architecture, API reference, and functions sections.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/installation.mdx": {
+      "sha256": "c6262f8320c7ade717b8b23b64cde474aa2b594db4459cd695ab789202c81182",
+      "size": 6340,
+      "description": "Step-by-step installation guide for deploying Alauda support for PostgreSQL on the Alauda Container Platform, covering three plugin installations through the Marketplace and Operator Hub: Data Services Essentials, Data Services RDS Framework, and the PostgreSQL operator itself. Documents recommended Channel/Version/Installation Mode/Upgrade Strategy parameters and how to enable the `middleware-rds-postgresql` and `middleware-rds-postgresql-backup` Alpha feature gates at `/console-platform/feature-gate` so the PostgreSQL management UI appears under Data Services.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/intro.mdx": {
+      "sha256": "8ccc9ad5617957730a3acc410f36edf132a3547d85ca188843c2284a09a1ef0c",
+      "size": 3256,
+      "description": "Product introduction explaining that Alauda support for PostgreSQL is a Kubernetes-native solution built on the Zalando Postgres Operator that manages PostgreSQL clusters via CRDs. Lists key capabilities (operator-driven automation, Patroni-based HA and failover, horizontal/vertical scaling, backup/PITR to S3-compatible storage like AWS S3, GCS, Azure Blob, and MinIO, TLS, RBAC, Prometheus metrics) and limitations: PostgreSQL 14/16 only (11/12 removed), up to 15 replicas per cluster, Kubernetes 1.19+, dynamic-provisioning StorageClass, and a 2 CPU / 4 GB minimum per node.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/release_notes.mdx": {
+      "sha256": "21c6da4a57fd17f5f860f75370d74e3e247e4c22c03bf34c82b6443361f97ea7",
+      "size": 527,
+      "description": "Release notes for v4.2.0, listing new and optimized features (deploying Postgres instances in PSA-restricted mode, Load Balancer Service type for hot-standby cluster replication, CVE fixes, and removal of PostgreSQL 11 and 12 support) along with placeholders for fixed and known issues from the Middleware project bug tracker.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/trouble_shooting/backup_failure.mdx": {
+      "sha256": "75ccb1ed86508885db199e82ddc6102b3bbb303fdd9787d0dfb8bd7cb042fa0d",
+      "size": 1685,
+      "description": "Diagnostic playbook for `PostgresBackup` and restore failures that present as stuck backup tasks, restore errors, or data inconsistency, attributed to storage misconfiguration, permission errors, network failures, or insufficient resources. Provides triage commands (`kubectl get postgresbackup -o yaml` for `spec.storage`/`status.state`/`status.message`, backup pod logs, `s3cmd ls s3://<bucket>` to verify storage reachability, `kubectl top pod` for resource pressure) and remediations covering S3 bucket permissions, IAM roles, Kubernetes Secrets for access keys, network policy review, and resource quota adjustments, plus preventive practices like periodic restore drills and retention policy review.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/trouble_shooting/cluster_creation_failure.mdx": {
+      "sha256": "a52feaca88bcd5debe6f1e99f34ef32f8812462b8641f7112fd4d3cb844282b1",
+      "size": 2052,
+      "description": "Troubleshooting guide for PostgreSQL clusters that remain stuck in the Creating phase before failing, attributing root causes to storage misconfiguration, namespace resource quota exhaustion, network connectivity issues, and container image pull errors. Walks through diagnostic commands for each area (`kubectl describe pvc` for storage class and PVC binding, `kubectl describe quota` for CPU/memory/pod limits, `kubectl get endpoints` for service reachability, `kubectl describe pod` for image pull failures and registry auth) along with remediation steps for storage class validation, quota adjustments, network policy review, and image registry credentials.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/trouble_shooting/failover_issues.mdx": {
+      "sha256": "521782b869e454a49596541b931603734dff253f475b1efbddae20d33821536a",
+      "size": 1875,
+      "description": "Troubleshooting guide for abnormal master-slave (primary-replica) switchover in Patroni-managed PostgreSQL clusters that result in prolonged failover time, data inconsistency, or service interruption due to network partitions, slow storage, misconfiguration, or resource shortage. Covers inspecting cluster state via `kubectl get postgresql -o yaml` (`status.PostgresClusterStatus`, `status.master`, `status.pods`), reading the `patroni` container logs for leader election events, querying `pg_stat_replication` for `state`/`sync_state`/`replay_lag`, and tuning fixes such as Patroni `ttl`/`loop_wait`/`retry_timeout` and PostgreSQL `wal_keep_segments`/`max_wal_senders` plus scaling and network policy remediation.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/trouble_shooting/index.mdx": {
+      "sha256": "c5847a41b03650aeca12f8a46ae4ad9908e3933dd6d8dbb4f88a9173a9ff00d7",
+      "size": 193,
+      "description": "Landing page for the Trouble Shooting section of the Alauda PostgreSQL documentation; renders an `<Overview />` component that links to failure-mode runbooks such as cluster creation failure, backup and restore failure, and master-slave switch exceptions.",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    },
+    "docs/en/upgrade.mdx": {
+      "sha256": "14702ba45e18299d0450444412da3603edd13588bc0586438d16eeb7cde6fcd0",
+      "size": 575,
+      "description": "Upgrade guidance noting that PostgreSQL 11 and 12 are removed in v4.2.0 so clusters must be moved to PostgreSQL 14 or 16 first, and explaining the two operator upgrade strategies: Automatic (upgrade triggered as soon as a new component version is detected) and Manual (requires explicit approval).",
+      "generation_method": "ai_agent_reading",
+      "updated_at": "2026-05-16T09:38:04Z"
+    }
+  }
+}

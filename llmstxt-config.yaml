@@ -1,0 +1,24 @@
+# llms.txt generator configuration for alauda/pg-docs
+# Product: Alauda support for PostgreSQL (Kubernetes-native PostgreSQL operator)
+
+project_name: "Alauda support for PostgreSQL"
+summary: "Kubernetes-native PostgreSQL management solution built on the Zalando Postgres Operator. Automates deployment, high availability, failover, scaling, backup and recovery, and monitoring of PostgreSQL clusters via CRDs."
+
+include_patterns:
+  - "docs/**/*.md"
+  - "docs/**/*.mdx"
+
+exclude_patterns:
+  - "**/node_modules/**"
+  - "**/.git/**"
+  - "**/llms.txt"
+  - "**/CHANGELOG.md"
+  - "**/CONTRIBUTING.md"
+  - "README.md"
+
+# Group H2 sections by the first path segment under docs/en/.
+# e.g. docs/en/apis/index.mdx -> group "apis"; docs/en/architecture.mdx -> "Root"
+grouping_base_path: "docs/en"
+
+batch_size: 15
+description_max_words: 150
