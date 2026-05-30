@@ -17,3 +17,7 @@ releaseNotes:
       filter = 16502 AND status in (Done, Resolved) AND (labels not in (安全问题) OR labels is EMPTY) AND project = MIDDLEWARE AND Feature = "MiddleWare - PostgreSQL"   AND fixVersion = PG-v4.2.0    AND ReleaseNotesStatus = Publish
     mw-pg-v4.2.0-known: |
       filter = 18959 AND status in (Done, Resolved) AND (labels not in (安全问题) OR labels is EMPTY) AND project = MIDDLEWARE AND Feature = "MiddleWare - PostgreSQL"   AND fixVersion = PG-v4.2.0    AND ReleaseNotesStatus = Publish
+    mw-pg-v4.3.0-fixed: |
+      filter = 16502 AND status in (Done, Resolved) AND (labels not in (安全问题) OR labels is EMPTY) AND project = MIDDLEWARE AND Feature = "MiddleWare - PostgreSQL"   AND fixVersion = PG-v4.3.0    AND ReleaseNotesStatus = Publish
+    mw-pg-v4.3.0-known: |
+      filter = 18959 AND status in (Done, Resolved) AND (labels not in (安全问题) OR labels is EMPTY) AND project = MIDDLEWARE AND Feature = "MiddleWare - PostgreSQL"   AND fixVersion = PG-v4.3.0    AND ReleaseNotesStatus = Publish

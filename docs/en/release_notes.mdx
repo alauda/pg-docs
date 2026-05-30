@@ -7,6 +7,30 @@ i18n:
 
 # Release Notes
 
+## v4.3.0
+
+### New and Optimized Features
+
+- **RBAC least-privilege and role segregation.** The operator no longer manages cluster-level RBAC resources, and `deletecollection` has been removed from all resource rules. Five new user-facing aggregated roles are introduced — `admin`, `edit`, `view`, `backup`, and `restore` — enabling segregation of duties. The `SkipRuntimeRBACCreation` configuration option was removed; the operator now always provisions the namespace-scoped `ServiceAccount` and `RoleBinding` at runtime. See [RBAC Architecture](./architecture.mdx#rbac-architecture) and [Assign PostgreSQL RBAC Roles](./how_to/assign_postgres_rbac.mdx) for details.
+- **Cross-Cluster Replication (XCR) stability.** Added `statement_timeout` to XCR connections and silenced spurious error logging. Guarded XCR metadata writes when no sync replica is ready and cleaned up orphaned replication slots when standby clusters scale down. Removed aggressive slot removal from `BeforeClusterSync` that could disrupt healthy replicas, and eliminated unnecessary local-DB connection attempts in `preReconcile` for LoadBalancer-based standby clusters.
+- **Reliability fixes.**
+  - `waitForPodDeletion` now polls the Kubernetes API in addition to the informer channel, eliminating 10-minute worker stalls caused by missed Delete events (observed on IPv6 / kube-ovn clusters).
+  - Patroni status updates during cluster lifecycle are now non-fatal — transient Patroni API errors are logged as warnings and no longer drive the cluster to `SyncFailed` / `AddFailed`. Also fixed a defer-variable-capture bug where the Patroni error leaked into the enclosing deferred status-setting closure.
+  - Fixed empty external-IP issue when a LoadBalancer Service is used for replication.
+  - Fixed restore errors and CSV generation issues.
+- **Build and security.**
+  - Renovate is integrated across release branches for automated dependency management.
+  - Go toolchain bumped to v1.26; upstream Zalando components (operator, operator-ui, logical-backup) updated to v1.15.0; Spilo rebuilt with the latest security fixes.
+  - Batch Go-module security patches across `golang.org/x/crypto`, `golang.org/x/net`, `logrus`, `requests`, and related dependencies.
+
+### Fixed Issues
+
+{/* release-notes-for-bugs?template=mw-pg-v4.3.0-fixed&project=Middleware */}
+
+### Known Issues
+
+{/* release-notes-for-bugs?template=mw-pg-v4.3.0-known&project=Middleware */}
+
 ## v4.2.0
 
 ### New and Optimized Features
