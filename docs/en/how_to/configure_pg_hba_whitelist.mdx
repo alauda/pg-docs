@@ -45,12 +45,23 @@ spec:
       - hostssl   replication  standby    all          md5
       - hostssl   all          +zalandos  all          pam
       - hostssl   all          all        all          md5
+      # The two catch-all rules below permit UNENCRYPTED password auth from any
+      # address. Include them only if clients cannot use SSL (see the warning).
       - host      all          all        0.0.0.0/0    md5
       - host      all          all        ::0/0        md5
 ```
 
 Apply with `kubectl apply` / `kubectl edit`. Patroni reloads the configuration
 without a database restart.
+
+:::warning
+`host all all 0.0.0.0/0 md5` (and its IPv6 form `::0/0`) allow unencrypted
+password authentication from any address, exposing credentials to network
+sniffing. Prefer the `hostssl ... md5` rules and require clients to use SSL.
+Only add the plain `host` catch-all rules when a client genuinely cannot use
+SSL — see
+[Connection fails with "SSL off"](../trouble_shooting/connection_ssl_off.mdx).
+:::
 
 ### 3. Verify
 

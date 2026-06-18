@@ -46,15 +46,18 @@ grow without bound.
    the standby can catch up and WAL can be recycled.
 
 2. **Reduce to a single node temporarily**, if acceptable to the customer, so
-   there is no lagging standby retaining WAL. Edit the `postgresql` resource:
+   there is no lagging standby retaining WAL. Patch the `postgresql` resource to
+   one instance:
 
    ```bash
-   kubectl get postgresql -A
-   # set spec.numberOfInstances: 1
+   # Find the cluster name/namespace first if needed: kubectl get postgresql -A
+   kubectl patch postgresql -n $NAMESPACE $CLUSTER_NAME --type merge \
+     -p '{"spec":{"numberOfInstances":1}}'
    ```
 
    After the lag clears, WAL is archived/recycled automatically and the disk
-   space is released. Scale back up once the situation is stable.
+   space is released. Scale back up (restore `numberOfInstances`) once the
+   situation is stable.
 
 :::danger
 Never delete files under `pg_wal` manually. Removing WAL that the database still

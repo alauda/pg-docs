@@ -78,6 +78,7 @@ The following options control dictionary loading and tokenization behavior
 | `zhparser.multi_duality`      | Compound loose characters into bigrams |
 | `zhparser.multi_zmain`        | Compound important single characters |
 | `zhparser.multi_zall`         | Compound all single characters |
+| `zhparser.extra_dicts`        | Comma-separated extra dictionary files (`.txt`/`.xdb`) loaded in addition to the built-in dictionary; must be set before the backend starts |
 
 ```sql
 SHOW zhparser.punctuation_ignore;
