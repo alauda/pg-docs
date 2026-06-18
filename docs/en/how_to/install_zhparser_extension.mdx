@@ -1,0 +1,102 @@
+---
+weight: 41
+title: Installing the zhparser Extension
+---
+
+# Installing the zhparser Extension
+
+## Overview
+
+[zhparser](https://github.com/amutu/zhparser) is a PostgreSQL full-text search
+parser for Chinese, based on SCWS. It is pre-bundled in the Spilo image shipped
+with the PostgreSQL Operator, so you only need to create the extension and a
+text-search configuration that uses it.
+
+## Prerequisites
+
+- A running PostgreSQL cluster managed by the PostgreSQL Operator.
+- A database user with privileges to create extensions (the `postgres`
+  superuser, used below). Managing the custom dictionary requires superuser
+  privileges.
+
+## Procedure
+
+### 1. Create the extension
+
+```sql
+CREATE EXTENSION IF NOT EXISTS zhparser;
+```
+
+### 2. Create a text-search configuration
+
+```sql
+CREATE TEXT SEARCH CONFIGURATION testzhcfg (PARSER = zhparser);
+ALTER TEXT SEARCH CONFIGURATION testzhcfg ADD MAPPING FOR n,v,a,i,e,l WITH simple;
+```
+
+### 3. Tokenize and build search vectors
+
+```sql
+-- Inspect raw tokenization
+SELECT * FROM ts_parse('zhparser', '保障房资金压力');
+
+-- Build a tsvector using the configuration created above
+SELECT to_tsvector('testzhcfg', '2011年保障房进入了更大规模的建设阶段');
+
+-- Build a tsquery
+SELECT to_tsquery('testzhcfg', '保障房资金压力');
+```
+
+## Custom dictionary
+
+The custom dictionary is scoped per **database** (not per instance) and is
+stored under the data directory. Adding custom words requires superuser
+privileges.
+
+```sql
+-- Add a custom word
+INSERT INTO zhparser.zhprs_custom_word VALUES ('资金压力');
+
+-- Synchronize the dictionary
+SELECT sync_zhprs_custom_word();
+```
+
+Re-establish your session (reconnect) for the change to take effect. After that,
+`资金压力` is tokenized as a single word instead of `资金` + `压力`.
+
+## Parser configuration
+
+The following options control dictionary loading and tokenization behavior
+(PostgreSQL 9.2+). All default to `false`:
+
+| Option | Purpose |
+|--------|---------|
+| `zhparser.punctuation_ignore` | Ignore punctuation and special symbols |
+| `zhparser.seg_with_duality`   | Aggregate loose characters using bigram segmentation |
+| `zhparser.dict_in_memory`     | Load the whole dictionary into memory |
+| `zhparser.multi_short`        | Compound short words |
+| `zhparser.multi_duality`      | Compound loose characters into bigrams |
+| `zhparser.multi_zmain`        | Compound important single characters |
+| `zhparser.multi_zall`         | Compound all single characters |
+
+```sql
+SHOW zhparser.punctuation_ignore;
+ALTER SYSTEM SET zhparser.punctuation_ignore = true;
+SELECT pg_reload_conf();
+```
+
+`zhparser.extra_dicts` and `zhparser.dict_in_memory` must be set before the
+backend starts (set them in the configuration and reload; new connections pick
+them up). The other options can be set per session.
+
+## Upgrading the extension
+
+```sql
+ALTER EXTENSION zhparser UPDATE;
+```
+
+## Verification
+
+```sql
+SELECT extname, extversion FROM pg_extension WHERE extname = 'zhparser';
+```

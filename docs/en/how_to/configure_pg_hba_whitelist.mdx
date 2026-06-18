@@ -1,0 +1,72 @@
+---
+weight: 42
+title: Configuring the pg_hba Client Authentication Whitelist
+---
+
+# Configuring the pg_hba Client Authentication Whitelist
+
+## Overview
+
+PostgreSQL client authentication is controlled by `pg_hba.conf`. In a cluster
+managed by the PostgreSQL Operator, this file is rendered and managed by
+Patroni — **editing `pg_hba.conf` inside the container has no effect** because
+Patroni overwrites it. Instead, declare the rules in the `postgresql` custom
+resource under `spec.patroni.pg_hba`, and the Operator/Patroni will apply and
+reload them.
+
+## Prerequisites
+
+- A running PostgreSQL cluster managed by the PostgreSQL Operator.
+- Permission to edit the `postgresql` custom resource.
+
+## Procedure
+
+### 1. Locate the custom resource
+
+```bash
+kubectl get postgresql -n $NAMESPACE
+```
+
+### 2. Set the pg_hba rules
+
+Edit the `postgresql` resource and add the whitelist under `spec.patroni.pg_hba`.
+Keep the internal Patroni/replication entries, and append your own rules. Order
+matters — the first matching rule wins.
+
+```yaml
+spec:
+  patroni:
+    pg_hba:
+      - local     all          all                     trust
+      - hostssl   all          +zalandos  127.0.0.1/32 pam
+      - host      all          all        127.0.0.1/32 md5
+      - hostssl   all          +zalandos  ::1/128      pam
+      - host      all          all        ::1/128      md5
+      - hostssl   replication  standby    all          md5
+      - hostssl   all          +zalandos  all          pam
+      - hostssl   all          all        all          md5
+      - host      all          all        0.0.0.0/0    md5
+      - host      all          all        ::0/0        md5
+```
+
+Apply with `kubectl apply` / `kubectl edit`. Patroni reloads the configuration
+without a database restart.
+
+### 3. Verify
+
+```bash
+kubectl exec -n $NAMESPACE $CLUSTER_NAME-0 -c postgres -- \
+  psql -U postgres -c "SELECT type, database, user_name, address, auth_method FROM pg_hba_file_rules ORDER BY line_number;"
+```
+
+The output should reflect the rules you declared. `pg_hba_file_rules` also
+reports parse errors in the `error` column if a rule is malformed.
+
+## Notes
+
+- Prefer `hostssl ... md5` over plain `host ... md5` when exposing the database
+  beyond the cluster, so that credentials are not sent over an unencrypted
+  connection. See also
+  [Connection fails with "SSL off"](../trouble_shooting/connection_ssl_off.mdx).
+- `+zalandos` is an internal role group used by the Operator; do not remove the
+  `+zalandos` lines or internal components may lose access.

@@ -1,0 +1,74 @@
+---
+weight: 44
+title: Disabling NodePort Exposure for a PostgreSQL Cluster
+---
+
+# Disabling NodePort Exposure for a PostgreSQL Cluster
+
+## Overview
+
+By default the Service that fronts a PostgreSQL cluster is of type `NodePort`,
+which opens a port on every node. In environments where exposing a node port is
+not acceptable, you can switch the Service to type `LoadBalancer` and disable
+node-port allocation, so the database is no longer reachable through a node
+port.
+
+:::info
+This requires the platform to provide a LoadBalancer implementation (for example
+MetalLB). If no `IPAddressPool` is configured, the Service's `EXTERNAL-IP` stays
+`<pending>` — the node port is still removed, but no external address is
+assigned until a pool exists. On OpenShift Container Platform, prefer exposing
+the database through a Route / passthrough instead of a node port.
+:::
+
+## Prerequisites
+
+- A running PostgreSQL cluster managed by the PostgreSQL Operator.
+- A LoadBalancer provider on the cluster if external reachability is required.
+
+## Procedure
+
+Set `$CLUSTER_NAME` and `$NAMESPACE` for the target cluster.
+
+### 1. Switch the Services to LoadBalancer
+
+```bash
+kubectl patch postgresql -n $NAMESPACE $CLUSTER_NAME --type merge \
+  -p '{"spec":{"enableMasterLoadBalancer":true,"enableReplicaLoadBalancer":true}}'
+```
+
+Wait ~30 seconds for the Operator to reconcile and the Service type to change to
+`LoadBalancer`:
+
+```bash
+kubectl get svc -n $NAMESPACE $CLUSTER_NAME -o jsonpath='{.spec.type}{"\n"}'
+```
+
+### 2. Remove node-port allocation
+
+Patch the master Service (and the `-repl` Service if you enabled the replica
+LoadBalancer) to stop allocating node ports:
+
+```bash
+kubectl patch service -n $NAMESPACE $CLUSTER_NAME \
+  -p '{"spec":{"allocateLoadBalancerNodePorts":false,"ports":[{"name":"postgresql","nodePort":null,"port":5432,"protocol":"TCP","targetPort":5432}]}}'
+
+kubectl patch service -n $NAMESPACE $CLUSTER_NAME-repl \
+  -p '{"spec":{"allocateLoadBalancerNodePorts":false,"ports":[{"name":"postgresql","nodePort":null,"port":5432,"protocol":"TCP","targetPort":5432}]}}'
+```
+
+### 3. Verify
+
+```bash
+kubectl get svc -n $NAMESPACE $CLUSTER_NAME \
+  -o custom-columns=NAME:.metadata.name,TYPE:.spec.type,NODEPORT:.spec.ports[0].nodePort,ALLOC:.spec.allocateLoadBalancerNodePorts
+```
+
+Expected: `TYPE=LoadBalancer`, `NODEPORT=<none>`, `ALLOC=false`.
+
+:::note
+The `ports[].name` in the patch must match the existing port name on the
+Service. Inspect it first with
+`kubectl get svc -n $NAMESPACE $CLUSTER_NAME -o jsonpath='{.spec.ports[*].name}'`
+and adjust the patch accordingly.
+:::

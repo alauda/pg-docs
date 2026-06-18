@@ -1,0 +1,65 @@
+---
+weight: 65
+title: Repairing a Broken Streaming Replica
+---
+
+# Repairing a Broken Streaming Replica
+
+## Problem Description
+
+A standby in a Patroni-managed PostgreSQL cluster is not replicating: it shows a
+large lag, is stuck, or is otherwise out of sync with the leader. The leader has
+no active streaming standby for it.
+
+## Diagnosis
+
+### 1. Inspect the cluster topology
+
+```bash
+kubectl exec -n $NAMESPACE $CLUSTER_NAME-0 -c postgres -- patronictl list
+```
+
+A member with a large `Lag in MB`, a `Pending restart`, or a non-`running`
+state is the broken replica.
+
+### 2. Check replication state on the leader
+
+```sql
+-- On the leader: a healthy standby appears here in state 'streaming'
+SELECT application_name, state, sent_lsn, replay_lsn, sync_state
+FROM pg_stat_replication;
+
+-- An inactive slot / stale restart_lsn indicates a stuck standby
+SELECT slot_name, active, restart_lsn FROM pg_replication_slots;
+```
+
+If `pg_stat_replication` returns no row for the standby, it is not streaming.
+
+## Resolution
+
+Reinitialize the broken member from the leader. This re-clones the standby's
+data directory from the current leader.
+
+```bash
+kubectl exec -n $NAMESPACE $CLUSTER_NAME-0 -c postgres -- \
+  patronictl reinit $CLUSTER_NAME $CLUSTER_NAME-1 --force
+```
+
+Replace `$CLUSTER_NAME-1` with the name of the broken member. Without `--force`,
+`patronictl` prompts for confirmation.
+
+After the reinit completes, confirm the member is healthy:
+
+```bash
+kubectl exec -n $NAMESPACE $CLUSTER_NAME-0 -c postgres -- patronictl list
+```
+
+The repaired member should show role `Replica`, state `running`/`streaming`,
+and `Lag in MB` of `0`. On the leader, `pg_stat_replication` should now list the
+member in state `streaming`.
+
+:::note
+`patronictl reinit` performs a fresh base backup of the member from the leader.
+On large databases this can take a while and consumes leader I/O; run it during
+a low-traffic window where possible.
+:::
