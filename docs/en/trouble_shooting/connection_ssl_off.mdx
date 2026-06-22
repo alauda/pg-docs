@@ -1,0 +1,66 @@
+---
+weight: 40
+title: Connection Fails with "SSL off"
+---
+
+# Connection Fails with "SSL off"
+
+## Problem Description
+
+A client fails to connect to PostgreSQL and the server rejects the connection
+with an error similar to:
+
+```
+[PostgreSQL error] failed to retrieve PostgreSQL server_version_num:
+FATAL: pg_hba.conf rejects connection for host "172.x.x.x", user "postgres", database "iapi", SSL off
+```
+
+The key part is `SSL off`: the client connected without SSL, and no `pg_hba.conf`
+rule matches a non-SSL (`host`) connection for that client, so PostgreSQL
+rejects it.
+
+## Root Cause
+
+`pg_hba.conf` only contains `hostssl` (SSL-only) entries for the client's
+address range, or is missing a catch-all rule for the client. A client that
+does not negotiate SSL therefore has no matching rule.
+
+## Diagnosis
+
+Inspect the effective rules:
+
+```bash
+kubectl exec -n $NAMESPACE $CLUSTER_NAME-0 -c postgres -- \
+  psql -U postgres -c "SELECT type, database, user_name, address, auth_method, error FROM pg_hba_file_rules ORDER BY line_number;"
+```
+
+Confirm there is no `host` (or `hostssl` if the client does use SSL) rule that
+matches the client's address.
+
+## Resolution
+
+Add a matching rule under `spec.patroni.pg_hba` in the `postgresql` custom
+resource. Prefer requiring SSL where possible:
+
+```yaml
+spec:
+  patroni:
+    pg_hba:
+      - local     all          all                     trust
+      - host      all          all        127.0.0.1/32 md5
+      - hostssl   replication  standby    all          md5
+      - hostssl   all          +zalandos  all          pam
+      - hostssl   all          all        all          md5
+      # Add this if the client cannot use SSL:
+      - host      all          all        0.0.0.0/0    md5
+```
+
+Patroni reloads the configuration without a restart. See
+[Configuring the pg_hba Client Authentication Whitelist](../how_to/configure_pg_hba_whitelist.mdx)
+for the full procedure and verification.
+
+:::warning
+Adding `host all all 0.0.0.0/0 md5` allows unencrypted password authentication
+from any address. Prefer fixing the **client** to use SSL and keeping only
+`hostssl` rules whenever possible.
+:::

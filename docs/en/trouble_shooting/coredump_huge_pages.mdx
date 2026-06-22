@@ -1,0 +1,56 @@
+---
+weight: 60
+title: PostgreSQL Coredump Caused by Huge Pages
+---
+
+# PostgreSQL Coredump Caused by Huge Pages
+
+## Problem Description
+
+PostgreSQL crashes on start-up with a bus error / coredump. The bootstrap log
+ends with:
+
+```
+selecting default shared_buffers ... 400kB
+selecting default time zone ... Etc/UTC
+creating configuration files ... ok
+running bootstrap script ... Bus error (core dumped)
+```
+
+## Root Cause
+
+Huge pages are enabled on the host, but the pod has no huge-page resource
+allocated, so the container cannot use them. PostgreSQL tries to request huge
+pages by default; the kernel sends `SIGBUS`, which produces the coredump.
+
+## Resolution
+
+Disable huge pages for the database. Set the `huge_pages` parameter to `off` in
+the `postgresql` custom resource:
+
+```yaml
+spec:
+  postgresql:
+    parameters:
+      huge_pages: "off"
+```
+
+Apply the change and let the Operator reconcile. Verify:
+
+```bash
+kubectl exec -n $NAMESPACE $CLUSTER_NAME-0 -c postgres -- \
+  psql -U postgres -tAc "SHOW huge_pages;"
+```
+
+Expected output:
+
+```
+off
+```
+
+:::note
+On current operand releases, setting the `huge_pages` parameter is sufficient —
+it is applied both at runtime and during database initialization. (Older
+guidance that mounted a `postgresql.conf.sample` ConfigMap per PostgreSQL major
+version is no longer required.)
+:::

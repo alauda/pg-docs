@@ -1,0 +1,109 @@
+---
+weight: 40
+title: Installing the pgvector Extension
+---
+
+# Installing the pgvector Extension
+
+## Overview
+
+[pgvector](https://github.com/pgvector/pgvector) adds a `vector` data type and
+nearest-neighbor search to PostgreSQL, which is commonly used for embedding /
+similarity-search workloads. The extension is pre-bundled in the Spilo image
+shipped with the PostgreSQL Operator, so no image rebuild is required — you only
+need to create the extension inside the target database.
+
+## Prerequisites
+
+- A running PostgreSQL cluster managed by the PostgreSQL Operator.
+- A database user with privileges to create extensions (the `postgres`
+  superuser, used below).
+
+## Procedure
+
+### 1. Verify the extension is available
+
+```bash
+kubectl exec -n $NAMESPACE $CLUSTER_NAME-0 -c postgres -- \
+  psql -U postgres -tAc \
+  "SELECT name, default_version FROM pg_available_extensions WHERE name = 'vector';"
+```
+
+Expected output (version may differ depending on the operand release):
+
+```
+vector|0.8.2
+```
+
+### 2. Create the extension
+
+```sql
+CREATE EXTENSION IF NOT EXISTS vector;
+```
+
+### 3. Smoke test
+
+```sql
+-- Create a table with a 3-dimensional vector column
+CREATE TABLE items (id bigserial PRIMARY KEY, embedding vector(3));
+
+-- Insert sample data
+INSERT INTO items (embedding) VALUES ('[1,2,3]'), ('[4,5,6]');
+
+-- Order by L2 distance to a query vector
+SELECT id, embedding <-> '[3,1,2]' AS l2_distance FROM items ORDER BY l2_distance;
+```
+
+The distance operators are:
+
+| Operator | Distance |
+|----------|----------|
+| `<->`    | L2 (Euclidean) |
+| `<#>`    | negative inner product |
+| `<=>`    | cosine |
+
+## Indexing for approximate nearest-neighbor search
+
+By default pgvector performs an exact search (perfect recall). For larger
+datasets you can add an approximate index, trading some recall for speed.
+
+### IVFFlat
+
+Build the index **after** the table contains data. A good starting point for
+the number of lists is `rows / 1000` (up to 1M rows) or `sqrt(rows)` beyond
+that.
+
+```sql
+-- L2 distance
+CREATE INDEX ON items USING ivfflat (embedding vector_l2_ops) WITH (lists = 100);
+
+-- Tune probes at query time (higher = better recall, slower)
+SET ivfflat.probes = 10;
+```
+
+### HNSW
+
+HNSW has slower build time and higher memory usage than IVFFlat but better
+query performance, and can be created on an empty table.
+
+```sql
+CREATE INDEX ON items USING hnsw (embedding vector_l2_ops) WITH (m = 16, ef_construction = 64);
+
+-- Tune the search candidate list at query time (default 40)
+SET hnsw.ef_search = 100;
+```
+
+Use `vector_ip_ops` (inner product) or `vector_cosine_ops` (cosine) instead of
+`vector_l2_ops` to index the corresponding distance function.
+
+## Upgrading the extension
+
+```sql
+ALTER EXTENSION vector UPDATE;
+```
+
+## Verification
+
+```sql
+SELECT extname, extversion FROM pg_extension WHERE extname = 'vector';
+```

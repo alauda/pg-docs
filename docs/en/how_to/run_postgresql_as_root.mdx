@@ -1,0 +1,75 @@
+---
+weight: 43
+title: Running PostgreSQL Internal Processes as root
+---
+
+# Running PostgreSQL Internal Processes as root
+
+## Overview
+
+By default the PostgreSQL Operator runs the database container as a non-root
+user for security. Some integrations — for example traditional storage backends
+that require root to mount or access volumes — only work when the container runs
+as root. This guide shows how to opt into running as root.
+
+:::warning
+Running the database as root is **not recommended**. It increases the attack
+surface and violates least-privilege principles: container-escape / privilege
+escalation become more damaging, account isolation is weakened, and it may
+violate security-compliance requirements. Only enable this when an integration
+genuinely requires it.
+:::
+
+## Prerequisites
+
+- A running PostgreSQL cluster managed by the PostgreSQL Operator.
+- Permission to edit the `postgresql` custom resource.
+- On OpenShift Container Platform (OCP): the target namespace's ServiceAccount
+  must be allowed to run privileged pods (for example by binding the
+  `privileged` SCC). Without this, the pods will be rejected by the Security
+  Context Constraints admission.
+
+## Procedure
+
+### 1. Set the root security fields
+
+Edit the `postgresql` resource and set the following fields:
+
+```yaml
+spec:
+  spiloRunAsUser: 0
+  spiloRunAsGroup: 0
+  spiloPrivileged: true
+  spiloAllowPrivilegeEscalation: true
+```
+
+Apply the change. The Operator rolls the pods so the new pod security context
+takes effect.
+
+### 2. Verify
+
+```bash
+kubectl exec -n $NAMESPACE $CLUSTER_NAME-0 -c postgres -- id
+```
+
+Expected output (uid 0):
+
+```
+uid=0(root) gid=0(root) groups=0(root),103(postgres)
+```
+
+You can also confirm the pod security context:
+
+```bash
+kubectl get pod $CLUSTER_NAME-0 -n $NAMESPACE \
+  -o jsonpath='{.spec.securityContext}{"\n"}{.spec.containers[0].securityContext}{"\n"}'
+```
+
+It should show `runAsUser: 0`, `runAsGroup: 0`, `privileged: true` and
+`allowPrivilegeEscalation: true`.
+
+## Reverting
+
+Remove the four fields (or set `spiloRunAsUser`/`spiloRunAsGroup` back to the
+non-root defaults `101`/`103` and the privileged flags to `false`) and apply.
+The Operator rolls the pods back to the non-root security context.

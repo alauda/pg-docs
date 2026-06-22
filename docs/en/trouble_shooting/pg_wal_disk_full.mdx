@@ -1,0 +1,66 @@
+---
+weight: 50
+title: Disk Full Due to pg_wal Accumulation
+---
+
+# Disk Full Due to pg_wal Accumulation
+
+## Problem Description
+
+The data volume fills up because Write-Ahead Log (WAL) segments under the
+`pg_wal` directory accumulate and are not recycled. The data cannot simply be
+deleted — removing WAL files by hand can corrupt the cluster.
+
+## Root Cause
+
+WAL segments are retained until they are no longer needed by every consumer
+(replicas, replication slots, archiver). The most common cause is that a standby
+cannot keep up — for example because of slow disk I/O — so replication lag grows
+and the primary must retain WAL for the lagging standby, causing `pg_wal` to
+grow without bound.
+
+## Diagnosis
+
+1. Confirm the cluster is otherwise healthy:
+
+   ```bash
+   kubectl exec -n $NAMESPACE $CLUSTER_NAME-0 -c postgres -- patronictl list
+   ```
+
+   A large, growing `Lag in MB` on a replica points to replication lag as the
+   cause.
+
+2. Check replication slots and current WAL position:
+
+   ```sql
+   SELECT slot_name, active, restart_lsn FROM pg_replication_slots;
+   SELECT * FROM pg_stat_replication;
+   ```
+
+   An inactive slot whose `restart_lsn` is far behind pins WAL on the primary.
+
+## Resolution
+
+1. **Reduce the write rate.** Lower the application's insert/update throughput
+   (for example from 10 rows/s to 5 rows/s, or pause non-essential writers) so
+   the standby can catch up and WAL can be recycled.
+
+2. **Reduce to a single node temporarily**, if acceptable to the customer, so
+   there is no lagging standby retaining WAL. Patch the `postgresql` resource to
+   one instance:
+
+   ```bash
+   # Find the cluster name/namespace first if needed: kubectl get postgresql -A
+   kubectl patch postgresql -n $NAMESPACE $CLUSTER_NAME --type merge \
+     -p '{"spec":{"numberOfInstances":1}}'
+   ```
+
+   After the lag clears, WAL is archived/recycled automatically and the disk
+   space is released. Scale back up (restore `numberOfInstances`) once the
+   situation is stable.
+
+:::danger
+Never delete files under `pg_wal` manually. Removing WAL that the database still
+needs will corrupt the cluster. Always resolve the underlying retention cause
+(lagging standby, stale replication slot, or stalled archiver) instead.
+:::
