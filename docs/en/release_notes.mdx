@@ -7,6 +7,22 @@ i18n:
 
 # Release Notes
 
+## v4.3.1
+
+### New and Optimized Features
+
+- **Security.** Remediated multiple CVEs across all PostgreSQL operand images — the operator, Spilo, pg-agent, RDS Operator, Pgpool-II, and the PostgreSQL exporter were rebuilt on patched base images and dependencies. The bundled WAL-G binary was rebuilt with an updated `jackc/pgx/v5` and Go toolchain to clear a critical CVE.
+- **In-place major upgrade fix.** Fixed PostgreSQL major-version in-place upgrades (for example, 14 → 16) that failed immediately on the Patroni 3.3 line because of a removed `get_global_config` API. The upgrade pre-flight now uses the current Patroni global-config API.
+- **RBAC project-admin aggregation.** PostgreSQL user-facing roles now aggregate to the platform `project-admin`, `cluster-admin`, and `platform-admin` roles, so project administrators can manage `postgresqls`, `postgresbackups`, and `postgresrestores` in their namespaces.
+
+### Fixed Issues
+
+{/* release-notes-for-bugs?template=mw-pg-v4.3.1-fixed&project=Middleware */}
+
+### Known Issues
+
+{/* release-notes-for-bugs?template=mw-pg-v4.3.1-known&project=Middleware */}
+
 ## v4.3.0
 
 ### New and Optimized Features
