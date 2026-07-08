@@ -7,6 +7,18 @@ i18n:
 
 # Release Notes
 
+## v4.3.3
+
+### Fixed Issues
+
+- **PostgreSQL 16 clusters failed to start on amd64 nodes.** The Spilo image shipped with v4.3.1 contained a `bg_mon` extension compiled against the wrong PostgreSQL major version on the amd64 architecture, causing PostgreSQL 16 instances to fail at startup with `could not load library ".../16/lib/bg_mon.so": undefined symbol: pgstat_fetch_stat_beentry`. The extension build now pins the target PostgreSQL version explicitly, and the fixed image has been verified across all supported PostgreSQL versions on both amd64 and arm64. arm64 clusters and other PostgreSQL versions were not affected. Affected v4.3.1 clusters recover by upgrading the plugin to v4.3.3.
+
+{/* release-notes-for-bugs?template=mw-pg-v4.3.3-fixed&project=Middleware */}
+
+### Known Issues
+
+{/* release-notes-for-bugs?template=mw-pg-v4.3.3-known&project=Middleware */}
+
 ## v4.3.1
 
 ### New and Optimized Features
