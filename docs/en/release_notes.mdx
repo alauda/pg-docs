@@ -11,17 +11,17 @@ i18n:
 
 ### New and Optimized Features
 
-- **Security.** All PostgreSQL operand images were rebuilt on patched bases and dependencies — Spilo, pg-agent, RDS Operator, Pgpool-II, and the PostgreSQL exporter — and the Go toolchain, `golang.org/x/net`, and `golang.org/x/text` were updated. Scanning the released images shows the vulnerability count reduced from 672 in v4.3.3 to 100 in v4.3.4, with **no High or Critical findings remaining**. See security advisory `ASA-2026:00280` for the full list of addressed CVEs.
+- **Security.** The operator and its Spilo, pg-agent, RDS Operator, Pgpool-II, and PostgreSQL exporter images were rebuilt on patched bases and dependencies, and the Go toolchain, `golang.org/x/net`, and `golang.org/x/text` were updated. The v4.3.4 scan reported **no High or Critical findings**, down from 206 High in v4.3.3; total reported findings fell from 672 to 100. See security advisory `ASA-2026:00280` for the full list of addressed CVEs.
 
 ### Fixed Issues
 
-- **A cluster demoted to standby could not rejoin its cross-cluster pair.** After a planned cross-cluster switchover — patching a primary to a standby rather than deleting and recreating it — the demoted cluster kept replicating against the topology that existed before the switchover and never reached the newly promoted primary. Patroni retried against the `<cluster>-xcr` endpoint in a connect-timeout loop without reporting the cause, and because a standby cluster has no automatic reinitialization fallback, the cluster could remain stuck instead of recovering on its own. The operator now resolves peer information from the peer cluster when demoting a primary, evaluates replication-metadata staleness against the configuration being applied rather than the one still running, and logs an explicit warning when a demotion can never rewind because both `wal_log_hints` and data checksums are disabled. Deleting and recreating the cluster is no longer required to recover it.
+- **A cluster demoted to standby could not rejoin its cross-cluster pair.** After a planned cross-cluster switchover — patching a primary to a standby rather than deleting and recreating it — the demoted cluster kept replicating against the topology that existed before the switchover and never reached the newly promoted primary. Patroni retried against the `<cluster>-xcr` endpoint in a connect-timeout loop without reporting the cause, and because a standby cluster has no automatic reinitialization fallback, the cluster could remain stuck instead of recovering on its own. The operator now resolves peer information from the peer cluster when demoting a primary, and evaluates replication-metadata staleness against the configuration being applied rather than the one still running, so with `pg_rewind` available — the default — the demoted cluster rejoins without being recreated. Where `use_pg_rewind` has been explicitly disabled, Patroni cannot reinitialize a diverged standby cluster; the operator now logs that the cluster has to be re-created from its new primary by hand.
 
 {/* release-notes-for-bugs?template=mw-pg-v4.3.4-fixed&project=Middleware */}
 
 ### Known Issues
 
-- **Logical backups are unavailable in disconnected environments.** Enabling `enableLogicalBackup` schedules a job that runs an image which is not included in the plugin package. In environments without access to an external image registry, the job fails with `ImagePullBackOff`. Clusters that do not enable logical backups are unaffected.
+- **Logical backups require the backup image to be made available separately.** Enabling `enableLogicalBackup` schedules a job that runs an image which is not included in the plugin package. Unless that image is separately mirrored or overridden, the job pod remains in `ImagePullBackOff`. Clusters that do not enable logical backups are unaffected.
 
 {/* release-notes-for-bugs?template=mw-pg-v4.3.4-known&project=Middleware */}
 
