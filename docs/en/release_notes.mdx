@@ -7,6 +7,24 @@ i18n:
 
 # Release Notes
 
+## v4.3.4
+
+### New and Optimized Features
+
+- **Security.** The operator and its Spilo, pg-agent, RDS Operator, Pgpool-II, and PostgreSQL exporter images were rebuilt on patched bases and dependencies, and the Go toolchain, `golang.org/x/net`, and `golang.org/x/text` were updated. The v4.3.4 scan reported **no High or Critical findings**, down from 206 High in v4.3.3; total reported findings fell from 672 to 100. See security advisory `ASA-2026:00280` for the full list of addressed CVEs.
+
+### Fixed Issues
+
+- **A cluster demoted to standby could not rejoin its cross-cluster pair.** After a planned cross-cluster switchover — patching a primary to a standby rather than deleting and recreating it — the demoted cluster kept replicating against the topology that existed before the switchover and never reached the newly promoted primary. Patroni retried against the `<cluster>-xcr` endpoint in a connect-timeout loop without reporting the cause, and because a standby cluster has no automatic reinitialization fallback, the cluster could remain stuck instead of recovering on its own. The operator now recognizes that the demoted cluster's local replication metadata predates the switchover — evaluating it against the configuration being applied rather than the one still running — and queries the peer cluster directly for the current topology when the local copy cannot be trusted, falling back to the local copy if the peer is unreachable. Spilo images ship with `use_pg_rewind` enabled, so where its prerequisites hold the demoted cluster can rejoin via `pg_rewind` instead of being deleted and recreated. Where `use_pg_rewind` has been explicitly disabled, Patroni cannot reinitialize a diverged standby cluster and the operator now logs that the cluster has to be re-created from its new primary by hand; other `pg_rewind` failures can still require manual recreation.
+
+{/* release-notes-for-bugs?template=mw-pg-v4.3.4-fixed&project=Middleware */}
+
+### Known Issues
+
+- **Logical backups require the backup image to be made available separately.** Enabling `enableLogicalBackup` schedules a job that runs an image which is not included in the plugin package. Unless that image is separately mirrored or overridden, the job pod remains in `ImagePullBackOff`. Clusters that do not enable logical backups are unaffected.
+
+{/* release-notes-for-bugs?template=mw-pg-v4.3.4-known&project=Middleware */}
+
 ## v4.3.3
 
 ### Fixed Issues
