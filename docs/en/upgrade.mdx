@@ -10,8 +10,27 @@ title: Upgrade
 # Upgrade
 
 :::warning
-PostgreSQL 11 and 12 have been removed. Please upgrade to PostgreSQL 14 or 16 before upgrading Alauda support for PostgreSQL to v4.2.0.
+PostgreSQL 11 and 12 have been removed. Please upgrade to PostgreSQL 14, 15 or 16 before upgrading Alauda support for PostgreSQL to v4.3.0.
 :::
+
+## Compatibility Matrix
+
+| Alauda PostgreSQL package version |  PostgreSQL server version  | Kubernetes version  |
+|:-------------------------:|:-----------------------------------:|:-------------------:|
+| v4.3.x                    | 13, 14, 15, 16                      | 1.25+               |
+| v4.2.x                    | 14, 16                              | 1.25+               |
+| v4.1.x                    | 14, 16                              | 1.25+               |
+| v4.0.x                    | 11, 12, 14                          | 1.25+               |
+
+Please refer to **[Release Notes](./release_notes.mdx)** for version-specific changes, new features and deprecations.
+
+## Upgrade Path
+
+- **Consecutive minor upgrade**: upgrade through consecutive minor versions, e.g. `4.1.x → 4.2.x → 4.3.x`.
+- **Patch-level upgrade**: any upgrade between patch versions of the same minor version is supported, e.g. `4.3.0 → 4.3.1`.
+- **PostgreSQL server version alignment**: if your current PostgreSQL server version is being removed by the target package version, you must manually upgrade the server to a supported version first.
+
+## Upgrade Strategy
 
 Alauda support for PostgreSQL will execute upgrades based on the configured upgrade strategy:
 - **Automatic** : Auto-upgrades are triggered immediately upon detecting new component versions.
