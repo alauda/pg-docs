@@ -8,9 +8,9 @@ The scheduling policy allows instances to run on specified nodes and effectively
 
 ## Scenario Overview
 
-* PostgreSQL is deployed in a dedicated business cluster, and customers want different PostgreSQL instances to run on different nodes for easier maintenance and faster fault localization.
+* PostgreSQL is deployed in a dedicated workload cluster, and customers want different PostgreSQL instances to run on different nodes for easier maintenance and faster fault localization.
 
-* PostgreSQL is deployed within an existing business cluster, and customers want to deploy PostgreSQL instances on specified nodes while preventing other applications from being scheduled to the same nodes.
+* PostgreSQL is deployed within an existing workload cluster, and customers want to deploy PostgreSQL instances on specified nodes while preventing other applications from being scheduled to the same nodes.
 
 Both scenarios can be implemented by configuring **Node Labels** and **Pod Tolerations** in the **Scheduling Configuration** section on the instance creation page.
 
