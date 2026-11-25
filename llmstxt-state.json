@@ -102,11 +102,11 @@
       "updated_at": "2026-05-16T09:38:04Z"
     },
     "docs/en/functions/18_scheduling.mdx": {
-      "sha256": "6d0b607a8d36a630ad639c57f45129e1487ded0e4c2f8a15a2fbc70d4475a64d",
+      "sha256": "674fef1d82ea1baabcc45e89bd113b5affa32bd70d30a8738bad0f0c91592b13",
       "size": 4051,
       "description": "Explains how to pin PostgreSQL instance pods to dedicated nodes using Kubernetes node labels and pod tolerations configured in the Scheduling Configuration section of the instance creation page, with a worked example placing instances on nodes 192.168.100.103-105 labeled `keypostgres=valuepostgres` and tainted with the same key. Includes a reference of taint `effect` semantics (`NoSchedule`, `PreferNoSchedule`, `NoExecute`) and toleration operators (`Equal`, `Exists`), plus prerequisites for platform administrators to apply node labels and taints before scheduling, and a verification path via Container Platform > Compute Components > Container Groups.",
       "generation_method": "ai_agent_reading",
-      "updated_at": "2026-05-16T09:38:04Z"
+      "updated_at": "2026-11-23T19:20:47Z"
     },
     "docs/en/functions/25_log.mdx": {
       "sha256": "83909df91fa6550f683942384ec415ec8143064d1b58d929029725321a4a1fd8",
@@ -151,11 +151,11 @@
       "updated_at": "2026-05-16T09:38:04Z"
     },
     "docs/en/installation.mdx": {
-      "sha256": "c6262f8320c7ade717b8b23b64cde474aa2b594db4459cd695ab789202c81182",
-      "size": 6340,
-      "description": "Step-by-step installation guide for deploying Alauda support for PostgreSQL on the Alauda Container Platform, covering three plugin installations through the Marketplace and Operator Hub: Data Services Essentials, Data Services RDS Framework, and the PostgreSQL operator itself. Documents recommended Channel/Version/Installation Mode/Upgrade Strategy parameters and how to enable the `middleware-rds-postgresql` and `middleware-rds-postgresql-backup` Alpha feature gates at `/console-platform/feature-gate` so the PostgreSQL management UI appears under Data Services.",
+      "sha256": "3283dd635c512f24503063019978045c6e9583b7e5d5586b4fe42da6a00cd1be",
+      "size": 6356,
+      "description": "Step-by-step installation guide for deploying Alauda support for PostgreSQL on the Alauda Container Platform, covering three Extension installations through the Marketplace and OperatorHub: Data Services Essentials, Data Services RDS Framework, and the PostgreSQL operator itself. Documents recommended Channel/Version/Installation Mode/Upgrade Strategy parameters and how to enable the `middleware-rds-postgresql` and `middleware-rds-postgresql-backup` Alpha feature gates at `/console-platform/feature-gate` so the PostgreSQL management UI appears under Data Services.",
       "generation_method": "ai_agent_reading",
-      "updated_at": "2026-05-16T09:38:04Z"
+      "updated_at": "2026-11-23T19:20:47Z"
     },
     "docs/en/intro.mdx": {
       "sha256": "8ccc9ad5617957730a3acc410f36edf132a3547d85ca188843c2284a09a1ef0c",
